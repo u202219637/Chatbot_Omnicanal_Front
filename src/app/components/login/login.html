@@ -1,45 +1,67 @@
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8f9fc">
-  <div class="sb-card" style="width:100%;max-width:420px">
+<div style="min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--soft)">
 
-    <!-- Brand -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
-      <div class="sb-logo">S</div>
-      <div>
-        <div style="font-weight:900;font-size:20px;color:#2f28a8">ShadowByte</div>
-        <div style="font-size:13px;color:#64748b">Ingresa a tu cuenta</div>
+  <!-- LEFT — branding -->
+  <div style="background:linear-gradient(160deg,#0f172a,#1e1b4b);
+              display:flex;flex-direction:column;justify-content:center;
+              padding:64px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-80px;right:-80px;width:400px;height:400px;
+                background:radial-gradient(circle,rgba(91,80,232,.25) 0%,transparent 70%)"></div>
+    <div style="position:relative">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:48px">
+        <div class="sb-logo" style="width:44px;height:44px;font-size:22px">S</div>
+        <span style="font-size:22px;font-weight:900;color:#fff">ShadowByte</span>
+      </div>
+      <h2 style="font-size:40px;font-weight:900;color:#fff;line-height:1.2;
+                  letter-spacing:-.04em;margin-bottom:16px">
+        Tu tienda tech con IA
+      </h2>
+      <p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:40px">
+        Accede a nuestro catálogo, chatea con Shadow IA y
+        recibe recomendaciones personalizadas al instante.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div *ngFor="let f of features"
+          style="display:flex;align-items:center;gap:12px;color:#c4b5fd;font-size:15px;font-weight:600">
+          {{ f }}
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Error -->
-    @if (error) {
-      <div style="background:#fee2e2;color:#be123c;padding:12px 16px;border-radius:12px;font-size:14px;margin-bottom:20px">
-        {{ error }}
+  <!-- RIGHT — form -->
+  <div style="display:flex;align-items:center;justify-content:center;padding:40px">
+    <div style="width:100%;max-width:400px">
+      <h3 style="font-size:28px;font-weight:900;letter-spacing:-.04em;margin-bottom:6px">Bienvenido</h3>
+      <p style="color:var(--muted);font-size:15px;margin-bottom:32px">Ingresa a tu cuenta de ShadowByte</p>
+
+      <div class="sb-card" style="box-shadow:var(--shadow-lg)">
+        <div *ngIf="error" style="background:var(--red2);color:#991b1b;padding:12px 16px;
+             border-radius:10px;font-size:14px;font-weight:600;margin-bottom:20px">
+          ⚠️ {{ error }}
+        </div>
+
+        <div style="margin-bottom:18px">
+          <label class="sb-label">Usuario</label>
+          <input class="sb-input" [(ngModel)]="username" placeholder="Tu username"
+                 (keydown.enter)="login()" autofocus>
+        </div>
+
+        <div style="margin-bottom:26px">
+          <label class="sb-label">Contraseña</label>
+          <input class="sb-input" [(ngModel)]="password" type="password"
+                 placeholder="Tu contraseña" (keydown.enter)="login()">
+        </div>
+
+        <button class="btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px"
+                (click)="login()" [disabled]="loading">
+          {{ loading ? '⏳ Ingresando...' : 'Ingresar →' }}
+        </button>
       </div>
-    }
 
-    <!-- Form -->
-    <div style="margin-bottom:16px">
-      <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Usuario</label>
-      <input [(ngModel)]="username" type="text" placeholder="Tu username"
-        style="width:100%;height:48px;border:1px solid #e6eaf2;border-radius:13px;padding:0 14px;font-family:inherit;font-size:14px;outline:none"
-        (keydown.enter)="login()">
-    </div>
-
-    <div style="margin-bottom:24px">
-      <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Contraseña</label>
-      <input [(ngModel)]="password" type="password" placeholder="Tu contraseña"
-        style="width:100%;height:48px;border:1px solid #e6eaf2;border-radius:13px;padding:0 14px;font-family:inherit;font-size:14px;outline:none"
-        (keydown.enter)="login()">
-    </div>
-
-    <button class="btn-primary" style="width:100%;justify-content:center;margin-bottom:16px"
-      (click)="login()" [disabled]="loading">
-      {{ loading ? 'Ingresando...' : 'Ingresar' }}
-    </button>
-
-    <div style="text-align:center;font-size:14px;color:#64748b">
-      ¿No tienes cuenta?
-      <a routerLink="/registro" style="color:#2f28a8;font-weight:700;text-decoration:none"> Regístrate</a>
+      <div style="text-align:center;margin-top:20px;font-size:14px;color:var(--muted)">
+        ¿No tienes cuenta?
+        <a routerLink="/registro" style="color:var(--p);font-weight:800"> Crear cuenta gratis</a>
+      </div>
     </div>
   </div>
 </div>

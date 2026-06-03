@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -6,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -15,6 +16,13 @@ export class LoginComponent {
   password = '';
   loading  = false;
   error    = '';
+
+  features = [
+    '💻 Catálogo de 500+ productos',
+    '🤖 Asistente IA 24/7',
+    '📱 Continúa por WhatsApp',
+    '🛡️ Compra segura y garantizada'
+  ];
 
   constructor(private auth: AuthService, private router: Router) {}
 

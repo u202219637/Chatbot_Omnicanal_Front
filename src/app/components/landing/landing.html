@@ -1,86 +1,413 @@
-<!-- HEADER -->
-<header class="sb-header">
-  <a class="sb-brand" routerLink="/landing">
-    <div class="sb-logo">S</div>
-    ShadowByte
-  </a>
-  <div class="sb-spacer"></div>
-  <button class="btn-outline" style="margin-right:12px" (click)="goLogin()">Iniciar sesión</button>
-  <button class="btn-primary" (click)="goLogin()">Abrir chat</button>
-</header>
+<app-navbar></app-navbar>
 
-<!-- HERO -->
-<section style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:80px 60px;max-width:1400px;margin:0 auto;align-items:center">
-  <div>
-    <div style="display:inline-flex;align-items:center;gap:8px;background:#f0efff;color:#2f28a8;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:24px">
-      Asistente con IA · Shadowchat
-    </div>
-    <h1 style="font-size:58px;line-height:1.05;letter-spacing:-.055em;color:#0f172a;margin-bottom:20px">
-      Tu asistente inteligente para compras tecnológicas
-    </h1>
-    <p style="color:#64748b;font-size:18px;line-height:1.6;margin-bottom:36px">
-      Resuelve tus dudas, compara productos y recibe recomendaciones personalizadas en segundos.
-    </p>
-    <div style="display:flex;gap:16px;flex-wrap:wrap">
-      <button class="btn-primary" (click)="goLogin()">
-        ▣ Abrir chat ahora
-      </button>
-      <button class="btn-outline">
-        Continuar por WhatsApp
-      </button>
-    </div>
-  </div>
+<div class="page" style="background:#fff">
 
-  <!-- CHAT PREVIEW -->
-  <div class="sb-card" style="max-width:480px">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <div style="width:46px;height:46px;border-radius:50%;background:#2f28a8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900">S</div>
+  <!-- ── HERO (FIX 1: margin-top:0) ─────────────────────────── -->
+  <section style="background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%);
+                  color:#fff;padding:100px 64px 80px;position:relative;overflow:hidden;
+                  margin-top:0">
+
+    <div style="position:absolute;top:-100px;right:-100px;width:600px;height:600px;
+                background:radial-gradient(circle,rgba(91,80,232,.3) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="position:absolute;bottom:-80px;left:200px;width:400px;height:400px;
+                background:radial-gradient(circle,rgba(47,40,168,.2) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div style="max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative">
+
       <div>
-        <div style="font-weight:800">Shadow IA●</div>
-        <div style="font-size:13px;color:#64748b">Asistente virtual para compras tecnológicas</div>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);
+                    backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);
+                    padding:8px 16px;border-radius:999px;font-size:13px;font-weight:700;
+                    color:#c4b5fd;margin-bottom:28px">
+          ✨ Chatbot omnicanal con IA generativa
+        </div>
+
+        <h1 style="font-size:56px;font-weight:900;line-height:1.08;letter-spacing:-.04em;margin-bottom:22px">
+          Tu tienda tech,<br>
+          <span style="background:linear-gradient(90deg,#a78bfa,#60a5fa);
+                        -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                        background-clip:text">
+            siempre disponible
+          </span>
+        </h1>
+
+        <p style="font-size:18px;line-height:1.7;color:#94a3b8;margin-bottom:40px;max-width:480px">
+          Compra laptops, periféricos y accesorios tecnológicos. Nuestro asistente IA resuelve
+          tus dudas por web o WhatsApp — sin esperas, sin repetirte.
+        </p>
+
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:48px">
+          <button class="btn-primary" style="font-size:16px;padding:16px 32px" (click)="goCatalogo()">
+            🛍️ Ver catálogo
+          </button>
+          <button class="btn-outline" style="font-size:16px;padding:16px 28px;background:rgba(255,255,255,.08);
+                  border-color:rgba(255,255,255,.2);color:#fff" (click)="goLogin()">
+            💬 Hablar con Shadow IA
+          </button>
+        </div>
+
+        <div style="display:flex;gap:32px">
+          <div *ngFor="let s of stats">
+            <div style="font-size:24px;font-weight:900;color:#fff">{{ s.value }}</div>
+            <div style="font-size:12px;color:#64748b;font-weight:600;margin-top:2px">{{ s.label }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat preview card -->
+      <div style="background:rgba(255,255,255,.05);backdrop-filter:blur(20px);
+                  border:1px solid rgba(255,255,255,.10);border-radius:24px;overflow:hidden">
+        <div style="padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08);
+                    display:flex;align-items:center;gap:12px">
+          <div style="width:42px;height:42px;border-radius:50%;
+                      background:linear-gradient(135deg,#6d28d9,#7c3aed);
+                      display:flex;align-items:center;justify-content:center;
+                      font-weight:900;color:#fff;font-size:18px">S</div>
+          <div>
+            <div style="font-weight:800;font-size:15px">Shadow IA</div>
+            <div style="font-size:12px;color:#10b981">● En línea ahora</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <div style="width:12px;height:12px;border-radius:50%;background:#ef4444"></div>
+            <div style="width:12px;height:12px;border-radius:50%;background:#f59e0b"></div>
+            <div style="width:12px;height:12px;border-radius:50%;background:#22c55e"></div>
+          </div>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px;min-height:280px">
+          <div style="background:rgba(255,255,255,.08);border-radius:4px 16px 16px 16px;
+                      padding:12px 16px;font-size:14px;color:#e2e8f0;max-width:80%">
+            Hola 👋 Soy Shadow IA. ¿Buscas una laptop, periférico o accesorio?
+          </div>
+          <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px 4px 16px 16px;
+                      padding:12px 16px;font-size:14px;color:#fff;max-width:80%;margin-left:auto">
+            Necesito una laptop para diseño, presupuesto S/ 3,500
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:4px 16px 16px 16px;
+                      padding:12px 16px;font-size:14px;color:#e2e8f0;max-width:90%">
+            Perfecto. Te recomiendo:<br><br>
+            <strong style="color:#a78bfa">• Dell Latitude 5440</strong> – S/ 3,249 ⭐<br>
+            <strong style="color:#a78bfa">• Lenovo ThinkPad E14</strong> – S/ 2,849<br>
+            <strong style="color:#a78bfa">• ASUS VivoBook 15</strong> – S/ 2,299
+          </div>
+          <div style="display:flex;gap:6px;padding:4px 0">
+            <div style="width:8px;height:8px;border-radius:50%;background:#64748b;animation:pulse 1s infinite"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#64748b;animation:pulse 1s infinite .3s"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#64748b;animation:pulse 1s infinite .6s"></div>
+          </div>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);
+                    display:flex;align-items:center;gap:10px;background:rgba(16,185,129,.08)">
+          <span style="font-size:20px">📱</span>
+          <div style="font-size:13px;color:#6ee7b7;font-weight:700">
+            También disponible por WhatsApp · Mismo historial, sin repetirte
+          </div>
+        </div>
       </div>
     </div>
-    <div class="bubble-bot">Hola, soy Shadow IA.<br>¿En qué puedo ayudarte hoy?</div>
-    <div class="bubble-you">Necesito una laptop para diseño gráfico con buen rendimiento.</div>
-    <div style="display:flex;gap:6px;padding:12px 0">
-      <div style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></div>
-      <div style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></div>
-      <div style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></div>
+  </section>
+
+  <!-- ── CATEGORÍAS CON IMÁGENES (FIX 4) ───────────────────── -->
+  <section style="padding:60px 64px;background:var(--soft)">
+    <div style="max-width:1300px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:40px">
+        <h2 style="font-size:36px;font-weight:900;letter-spacing:-.04em;margin-bottom:10px">
+          Todo lo que necesitas en tecnología
+        </h2>
+        <p style="color:var(--muted);font-size:16px">Más de 500 productos de las mejores marcas</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+
+        <!-- Card grande: Laptops -->
+        <div (click)="goCatalogo()"
+          style="grid-row:span 2;border-radius:20px;overflow:hidden;cursor:pointer;
+                 position:relative;min-height:360px;
+                 background:linear-gradient(160deg,#0f172a,#1e1b4b)"
+          onmouseover="this.querySelector('.cat-overlay').style.opacity='1'"
+          onmouseout="this.querySelector('.cat-overlay').style.opacity='0'">
+          <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&q=80"
+               style="width:100%;height:100%;object-fit:cover;opacity:.7;position:absolute;top:0;left:0">
+          <div style="position:relative;padding:28px;height:100%;display:flex;flex-direction:column;justify-content:flex-end">
+            <div style="color:rgba(255,255,255,.7);font-size:12px;font-weight:700;
+                        text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Más vendido</div>
+            <div style="color:#fff;font-size:26px;font-weight:900;margin-bottom:6px">Laptops</div>
+            <div style="color:rgba(255,255,255,.7);font-size:14px">Dell, HP, Lenovo, ASUS, Apple</div>
+            <div class="cat-overlay"
+                 style="margin-top:14px;opacity:0;transition:opacity .2s;
+                        display:inline-flex;align-items:center;gap:6px;
+                        color:#a78bfa;font-weight:800;font-size:13px">
+              Ver todos los modelos →
+            </div>
+          </div>
+        </div>
+
+        <!-- Periféricos -->
+        <div (click)="goCatalogo()"
+          style="border-radius:20px;overflow:hidden;cursor:pointer;
+                 position:relative;min-height:170px;background:#1a1a2e"
+          onmouseover="this.querySelector('.cat-overlay').style.opacity='1'"
+          onmouseout="this.querySelector('.cat-overlay').style.opacity='0'">
+          <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&q=80"
+               style="width:100%;height:100%;object-fit:cover;opacity:.65;position:absolute;top:0;left:0">
+          <div style="position:relative;padding:20px;height:100%;display:flex;flex-direction:column;justify-content:flex-end">
+            <div style="color:#fff;font-size:18px;font-weight:900">Periféricos</div>
+            <div style="color:rgba(255,255,255,.65);font-size:12px">Mouse, teclados, webcams</div>
+            <div class="cat-overlay" style="opacity:0;transition:opacity .2s;color:#a78bfa;font-size:12px;font-weight:800;margin-top:6px">Ver →</div>
+          </div>
+        </div>
+
+        <!-- Monitores -->
+        <div (click)="goCatalogo()"
+          style="border-radius:20px;overflow:hidden;cursor:pointer;
+                 position:relative;min-height:170px;background:#0c1445"
+          onmouseover="this.querySelector('.cat-overlay').style.opacity='1'"
+          onmouseout="this.querySelector('.cat-overlay').style.opacity='0'">
+          <img src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=500&q=80"
+               style="width:100%;height:100%;object-fit:cover;opacity:.65;position:absolute;top:0;left:0">
+          <div style="position:relative;padding:20px;height:100%;display:flex;flex-direction:column;justify-content:flex-end">
+            <div style="color:#fff;font-size:18px;font-weight:900">Monitores</div>
+            <div style="color:rgba(255,255,255,.65);font-size:12px">FHD, QHD, Gaming</div>
+            <div class="cat-overlay" style="opacity:0;transition:opacity .2s;color:#a78bfa;font-size:12px;font-weight:800;margin-top:6px">Ver →</div>
+          </div>
+        </div>
+
+        <!-- Almacenamiento -->
+        <div (click)="goCatalogo()"
+          style="border-radius:20px;overflow:hidden;cursor:pointer;
+                 position:relative;min-height:170px;background:#0f2027"
+          onmouseover="this.querySelector('.cat-overlay').style.opacity='1'"
+          onmouseout="this.querySelector('.cat-overlay').style.opacity='0'">
+          <img src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500&q=80"
+               style="width:100%;height:100%;object-fit:cover;opacity:.65;position:absolute;top:0;left:0">
+          <div style="position:relative;padding:20px;height:100%;display:flex;flex-direction:column;justify-content:flex-end">
+            <div style="color:#fff;font-size:18px;font-weight:900">Almacenamiento</div>
+            <div style="color:rgba(255,255,255,.65);font-size:12px">SSD NVMe, PCIe 4.0</div>
+            <div class="cat-overlay" style="opacity:0;transition:opacity .2s;color:#a78bfa;font-size:12px;font-weight:800;margin-top:6px">Ver →</div>
+          </div>
+        </div>
+
+        <!-- Accesorios -->
+        <div (click)="goCatalogo()"
+          style="border-radius:20px;overflow:hidden;cursor:pointer;
+                 position:relative;min-height:170px;background:#1a0533"
+          onmouseover="this.querySelector('.cat-overlay').style.opacity='1'"
+          onmouseout="this.querySelector('.cat-overlay').style.opacity='0'">
+          <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&q=80"
+               style="width:100%;height:100%;object-fit:cover;opacity:.65;position:absolute;top:0;left:0">
+          <div style="position:relative;padding:20px;height:100%;display:flex;flex-direction:column;justify-content:flex-end">
+            <div style="color:#fff;font-size:18px;font-weight:900">Accesorios</div>
+            <div style="color:rgba(255,255,255,.65);font-size:12px">Mochilas, fundas, cables</div>
+            <div class="cat-overlay" style="opacity:0;transition:opacity .2s;color:#a78bfa;font-size:12px;font-weight:800;margin-top:6px">Ver →</div>
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;border-top:1px solid #e6eaf2;padding-top:16px">
-      <input style="flex:1;border:1px solid #e6eaf2;border-radius:12px;padding:12px 16px;font-family:inherit;font-size:14px;outline:none"
-             placeholder="Escribe tu consulta..." (keydown.enter)="goLogin()">
-      <button class="btn-primary" style="padding:12px 16px" (click)="goLogin()">➤</button>
+  </section>
+
+  <!-- ── OMNICANALIDAD ──────────────────────────────────────── -->
+  <section style="padding:80px 64px;background:linear-gradient(135deg,#f8faff,#f0f4ff)">
+    <div style="max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:var(--p3);
+                    color:var(--p);padding:7px 14px;border-radius:999px;
+                    font-size:12px;font-weight:800;letter-spacing:.06em;margin-bottom:20px">
+          🌐 OMNICANALIDAD
+        </div>
+        <h2 style="font-size:40px;font-weight:900;letter-spacing:-.04em;line-height:1.15;margin-bottom:18px">
+          Empieza en web,<br>continúa por WhatsApp
+        </h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:32px">
+          Shadow IA recuerda toda tu conversación sin importar el canal.
+          Pregunta por una laptop en la web, recibe la respuesta en WhatsApp.
+          Un solo historial, cero repeticiones.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:14px;background:var(--white);
+                      border:1px solid var(--line);border-radius:14px;padding:16px 20px">
+            <span style="font-size:28px">🌐</span>
+            <div>
+              <div style="font-weight:800;font-size:15px">Canal Web</div>
+              <div style="font-size:13px;color:var(--muted)">Chat completo con historial y recomendaciones</div>
+            </div>
+            <div style="margin-left:auto" class="badge badge-blue">Disponible</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:var(--white);
+                      border:1px solid var(--line);border-radius:14px;padding:16px 20px">
+            <span style="font-size:28px">📱</span>
+            <div>
+              <div style="font-weight:800;font-size:15px">WhatsApp</div>
+              <div style="font-size:13px;color:var(--muted)">Mismo historial, continúa donde lo dejaste</div>
+            </div>
+            <div style="margin-left:auto" class="badge badge-green">Disponible</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:var(--white);
+                      border:1px solid var(--line);border-radius:14px;padding:16px 20px;opacity:.6">
+            <span style="font-size:28px">📧</span>
+            <div>
+              <div style="font-weight:800;font-size:15px">Email</div>
+              <div style="font-size:13px;color:var(--muted)">Próximamente disponible</div>
+            </div>
+            <div style="margin-left:auto" class="badge badge-gray">Pronto</div>
+          </div>
+        </div>
+      </div>
+      <div style="position:relative">
+        <div style="background:var(--white);border:1px solid var(--line);border-radius:20px;
+                    padding:24px;box-shadow:var(--shadow-lg)">
+          <div style="font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;
+                      letter-spacing:.08em;margin-bottom:16px">Historial unificado</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--blue2);border-radius:12px">
+              <span>🌐</span>
+              <div style="font-size:13px"><strong>Web:</strong> "¿Cuál laptop es mejor para programar?"</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;background:#f0fdf4;border-radius:12px">
+              <span>📱</span>
+              <div style="font-size:13px"><strong>WhatsApp:</strong> "La Dell o la Lenovo?"</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--p3);border-radius:12px">
+              <span>🤖</span>
+              <div style="font-size:13px;color:var(--p)"><strong>Shadow IA:</strong> Basándome en lo que consultaste antes, la Dell tiene mejor rendimiento...</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
+
+  <!-- ── FEATURES — compacto (FIX 5) ──────────────────────── -->
+  <section id="features" style="padding:48px 64px;background:var(--white);
+                                 border-top:1px solid var(--line)">
+    <div style="max-width:1300px;margin:0 auto">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">
+        <div *ngFor="let f of features"
+          style="text-align:center;padding:20px 12px;border-radius:14px;
+                 border:1px solid var(--line);background:var(--soft);
+                 transition:border-color .15s,box-shadow .15s"
+          onmouseover="this.style.borderColor='#c4b5fd';this.style.boxShadow='0 4px 16px rgba(47,40,168,.08)'"
+          onmouseout="this.style.borderColor='var(--line)';this.style.boxShadow='none'">
+          <div style="font-size:24px;margin-bottom:10px">{{ f.icon }}</div>
+          <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px">{{ f.title }}</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">{{ f.desc }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MARCAS ──────────────────────────────────────────────── -->
+  <section style="padding:48px 64px;background:var(--soft);border-top:1px solid var(--line)">
+    <div style="max-width:1300px;margin:0 auto;text-align:center">
+      <div style="font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;
+                  letter-spacing:.1em;margin-bottom:28px">Marcas que comercializamos</div>
+      <div style="display:flex;gap:40px;justify-content:center;align-items:center;flex-wrap:wrap">
+        <div *ngFor="let m of ['Dell','HP','Lenovo','ASUS','Apple','Logitech','Kingston','Targus']"
+          style="font-size:18px;font-weight:900;color:#94a3b8;letter-spacing:-.02em">{{ m }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA FINAL ───────────────────────────────────────────── -->
+  <section id="contacto"
+    style="padding:100px 64px;background:linear-gradient(160deg,#0f172a,#1e1b4b);color:#fff;text-align:center">
+    <div style="max-width:680px;margin:0 auto">
+      <h2 style="font-size:44px;font-weight:900;letter-spacing:-.04em;margin-bottom:16px">
+        ¿Listo para encontrar tu equipo ideal?
+      </h2>
+      <p style="font-size:17px;color:#94a3b8;margin-bottom:40px;line-height:1.7">
+        Habla con Shadow IA ahora mismo y recibe recomendaciones personalizadas
+        según tu presupuesto y necesidades.
+      </p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-primary" style="font-size:16px;padding:16px 36px" (click)="goCatalogo()">
+          🛍️ Ver catálogo completo
+        </button>
+        <button (click)="goLogin()"
+          style="display:inline-flex;align-items:center;gap:8px;
+                 font-size:16px;font-weight:800;padding:16px 28px;border-radius:12px;
+                 background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);
+                 color:#fff;cursor:pointer">
+          💬 Chatear ahora
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ──────────────────────────────────────────────── -->
+  <footer style="background:#0f172a;padding:32px 64px;border-top:1px solid rgba(255,255,255,.06)">
+    <div style="max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div style="display:flex;align-items:center;gap:10px;color:#fff">
+        <div class="sb-logo">S</div>
+        <span style="font-weight:900">ShadowByte</span>
+        <span style="color:#475569;font-size:14px">· Lima, Perú</span>
+      </div>
+      <div style="font-size:13px;color:#475569">© 2025 ShadowByte · Todos los derechos reservados</div>
+    </div>
+  </footer>
+
+  <!-- WIDGET FLOTANTE OMNICANAL (FIX 2) -->
+  <div id="chat-widget" style="position:fixed;right:24px;bottom:24px;z-index:9999;font-family:inherit">
+
+    <div id="chat-panel" style="display:none;margin-bottom:12px;
+         background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(15,23,42,.18);
+         overflow:hidden;width:320px">
+
+      <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);padding:20px;color:#fff">
+        <div style="font-weight:900;font-size:16px;margin-bottom:4px">ShadowByte</div>
+        <div style="font-size:13px;opacity:.8">¿Cómo quieres contactarnos?</div>
+      </div>
+
+      <a routerLink="/chat" (click)="toggleWidget()"
+         style="display:flex;align-items:center;gap:14px;padding:16px 20px;
+                border-bottom:1px solid #f1f5f9;cursor:pointer;text-decoration:none;
+                transition:background .15s;background:#fff"
+         onmouseover="this.style.background='#f8faff'"
+         onmouseout="this.style.background='#fff'">
+        <div style="width:44px;height:44px;border-radius:12px;
+                    background:linear-gradient(135deg,#6d28d9,#7c3aed);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:22px;flex-shrink:0">🤖</div>
+        <div>
+          <div style="font-weight:800;font-size:14px;color:#0f172a">Shadow IA — Chat Web</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px">Responde al instante · IA generativa</div>
+        </div>
+        <span style="margin-left:auto;color:#94a3b8;font-size:18px">›</span>
+      </a>
+
+      <a href="https://api.whatsapp.com/send?phone=51999000001&text=Hola+ShadowByte,+necesito+ayuda"
+         target="_blank"
+         style="display:flex;align-items:center;gap:14px;padding:16px 20px;
+                cursor:pointer;text-decoration:none;transition:background .15s;background:#fff"
+         onmouseover="this.style.background='#f0fdf4'"
+         onmouseout="this.style.background='#fff'">
+        <div style="width:44px;height:44px;border-radius:12px;background:#22c55e;
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:22px;flex-shrink:0">📱</div>
+        <div>
+          <div style="font-weight:800;font-size:14px;color:#0f172a">WhatsApp</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px">Continúa en cualquier momento</div>
+        </div>
+        <span style="margin-left:auto;color:#94a3b8;font-size:18px">›</span>
+      </a>
+
+      <div style="padding:10px 20px;background:#f8fafc;
+                  font-size:11px;color:#94a3b8;text-align:center;font-weight:600">
+        Powered by ShadowByte IA · Omnicanal
+      </div>
+    </div>
+
+    <button id="chat-bubble" (click)="toggleWidget()"
+      style="width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+             background:linear-gradient(135deg,#4f46e5,#7c3aed);
+             box-shadow:0 4px 24px rgba(79,70,229,.45);
+             display:flex;align-items:center;justify-content:center;
+             font-size:26px;color:#fff;transition:transform .2s,box-shadow .2s;
+             position:relative"
+      onmouseover="this.style.transform='scale(1.08)'"
+      onmouseout="this.style.transform='scale(1)'">
+      💬
+      <span style="position:absolute;top:2px;right:2px;width:14px;height:14px;
+                   border-radius:50%;background:#22c55e;border:2px solid #fff"></span>
+    </button>
   </div>
-</section>
 
-<!-- FEATURES -->
-<section style="padding:0 60px 80px;max-width:1400px;margin:0 auto">
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
-    <div class="sb-card">
-      <div style="width:58px;height:58px;border-radius:17px;background:#f0efff;color:#2f28a8;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px">▣</div>
-      <div style="font-weight:800;margin-bottom:8px">Consultas inteligentes</div>
-      <div style="color:#64748b;font-size:14px;line-height:1.6">Respuestas precisas sobre laptops y periféricos.</div>
-    </div>
-    <div class="sb-card">
-      <div style="width:58px;height:58px;border-radius:17px;background:#f0efff;color:#2f28a8;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px">◎</div>
-      <div style="font-weight:800;margin-bottom:8px">Recomendaciones personalizadas</div>
-      <div style="color:#64748b;font-size:14px;line-height:1.6">Según tus necesidades y presupuesto.</div>
-    </div>
-    <div class="sb-card">
-      <div style="width:58px;height:58px;border-radius:17px;background:#f0efff;color:#2f28a8;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px">✓</div>
-      <div style="font-weight:800;margin-bottom:8px">Información confiable</div>
-      <div style="color:#64748b;font-size:14px;line-height:1.6">Catálogo, garantías y políticas actualizadas.</div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer style="border-top:1px solid #e6eaf2;padding:24px 60px;display:flex;align-items:center;gap:12px;color:#64748b;font-size:14px">
-  <div class="sb-logo" style="width:28px;height:28px;font-size:13px;border-radius:8px">S</div>
-  ShadowByte © 2025 · Lima, Perú
-</footer>
-
-<!-- FLOATING CHAT BUTTON -->
-<button class="float-chat" (click)="goLogin()">💬</button>
+</div>

@@ -1,72 +1,192 @@
-<!-- HEADER -->
-<header class="sb-header">
-  <a class="sb-brand" [routerLink]="['/catalogo']">
-    <div class="sb-logo">S</div>ShadowByte
-  </a>
-  <div class="sb-spacer"></div>
-  <div style="display:flex;gap:10px;align-items:center">
-    <button class="btn-outline" (click)="irChat()">💬 Chat IA</button>
-    <div class="sb-user">
-      <span>{{ auth.getUsername() }}</span>
-      <div class="sb-avatar">{{ auth.getUsername().substring(0,2).toUpperCase() }}</div>
+<app-navbar></app-navbar>
+
+<div style="background:var(--soft);min-height:100vh">
+
+  <!-- SEARCH BAR TOP -->
+  <div style="background:var(--white);border-bottom:1px solid var(--line);padding:16px 28px">
+    <div style="max-width:1400px;margin:0 auto;display:flex;gap:12px;align-items:center">
+      <div style="flex:1;position:relative">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none">🔍</span>
+        <input class="sb-input" [(ngModel)]="q"
+               style="padding-left:42px;background:var(--soft)"
+               placeholder="Buscar productos, marcas o modelos..."
+               (keydown.enter)="cargar()">
+      </div>
+      <select class="sb-input" [(ngModel)]="orden" (change)="aplicarFiltros()"
+              style="width:200px">
+        <option value="relevancia">Ordenar por: Relevancia</option>
+        <option value="precio_asc">Precio: menor a mayor</option>
+        <option value="precio_desc">Precio: mayor a menor</option>
+        <option value="nombre">Nombre A-Z</option>
+      </select>
+      <button class="btn-primary" (click)="cargar()" style="padding:11px 22px;flex-shrink:0">Buscar</button>
     </div>
-    <button class="btn-outline" (click)="logout()">Salir</button>
   </div>
-</header>
 
-<!-- SEARCH BAR -->
-<div style="padding:28px 60px 0;max-width:1400px;margin:0 auto">
-  <div style="display:flex;gap:12px;margin-bottom:28px">
-    <input [(ngModel)]="q" placeholder="Buscar laptops, periféricos..."
-      style="flex:1;height:48px;border:1px solid #e6eaf2;border-radius:13px;padding:0 16px;font-family:inherit;font-size:14px;outline:none"
-      (keydown.enter)="buscar()">
-    <button class="btn-primary" (click)="buscar()">Buscar</button>
-  </div>
-</div>
+  <!-- BODY -->
+  <div style="max-width:1400px;margin:0 auto;padding:24px 28px;display:flex;gap:24px">
 
-<!-- PRODUCTOS -->
-<div style="padding:0 60px 60px;max-width:1400px;margin:0 auto">
+    <!-- SIDEBAR FILTROS -->
+    <aside class="filter-sidebar">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div style="font-size:15px;font-weight:900">Filtros</div>
+        <button (click)="limpiar()" style="font-size:12px;font-weight:700;color:var(--p);background:none;border:none;cursor:pointer">Limpiar todo</button>
+      </div>
 
-  @if (loading) {
-    <div style="text-align:center;padding:80px;color:#64748b">
-      Cargando productos...
-    </div>
-  }
+      <!-- Categorías -->
+      <div class="filter-section-title">Categoría</div>
+      <div style="margin-bottom:18px">
+        <label *ngFor="let c of categorias" class="filter-item" style="display:flex">
+          <div style="display:flex;align-items:center;gap:8px;flex:1">
+            <input type="checkbox" (change)="toggleCategoria(c.id)"
+                   [checked]="categoriasSel.includes(c.id)">
+            <span style="font-size:13px;font-weight:700">{{ c.nombre }}</span>
+          </div>
+          <span class="filter-count">{{ countCat(c.nombre) }}</span>
+        </label>
+      </div>
 
-  @if (!loading && productos.length === 0) {
-    <div style="text-align:center;padding:80px;color:#64748b">
-      No se encontraron productos.
-    </div>
-  }
+      <!-- Marcas -->
+      <div class="filter-section-title">Marca</div>
+      <div style="margin-bottom:18px">
+        <div style="position:relative;margin-bottom:10px">
+          <input class="sb-input" placeholder="Buscar marca..." style="height:36px;font-size:13px">
+        </div>
+        <label *ngFor="let m of marcas" class="filter-item" style="display:flex">
+          <div style="display:flex;align-items:center;gap:8px;flex:1">
+            <input type="checkbox" (change)="toggleMarca(m.id)"
+                   [checked]="marcasSel.includes(m.id)">
+            <span style="font-size:13px;font-weight:700">{{ m.nombre }}</span>
+          </div>
+          <span class="filter-count">{{ countMarca(m.nombre) }}</span>
+        </label>
+      </div>
 
-  @if (!loading) {
-    <div class="product-grid">
-      @for (p of productos; track p.id) {
-        <div class="product-card" (click)="verDetalle(p.id)">
+      <!-- Precio -->
+      <div class="filter-section-title">Rango de precio</div>
+      <input type="range" min="0" [max]="10000" [(ngModel)]="precioMax"
+             (input)="aplicarFiltros()"
+             style="width:100%;accent-color:var(--p);margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted)">
+        <span>S/ 0</span>
+        <span>{{ formatPrice(precioMax) }}</span>
+      </div>
+    </aside>
+
+    <!-- PRODUCTOS -->
+    <div style="flex:1;min-width:0">
+
+      <!-- Header resultados -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div>
+          <div class="section-title">Catálogo de productos</div>
+          <div class="section-sub">
+            Explora nuestra selección de laptops, periféricos y accesorios tecnológicos.
+          </div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:16px">
+        Mostrando 1–{{ filtrados.length }} de {{ filtrados.length }} productos
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading-spinner" *ngIf="loading">
+        <span>⏳</span> Cargando productos...
+      </div>
+
+      <!-- EMPTY -->
+      <div class="empty-state" *ngIf="!loading && filtrados.length === 0">
+        <div class="empty-icon">🔍</div>
+        No se encontraron productos.
+        <br><br>
+        <button class="btn-outline" (click)="limpiar()">Ver todos</button>
+      </div>
+
+      <!-- GRID -->
+      <div class="product-grid" *ngIf="!loading && filtrados.length > 0">
+        <div class="product-card" *ngFor="let p of filtrados" (click)="verDetalle(p.id)">
+
+          <!-- IMAGEN -->
           <div class="product-img">
-            @if (p.urlImagen) {
-              <img [src]="p.urlImagen" [alt]="p.nombre">
-            } @else {
-              <span>{{ emoji(p.categoriaNombre) }}</span>
-            }
+            <img *ngIf="p.urlImagen" [src]="p.urlImagen" [alt]="p.nombre"
+                 loading="lazy">
+            <span *ngIf="!p.urlImagen">{{ emoji(p.categoriaNombre) }}</span>
           </div>
-          <div style="font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;margin-bottom:4px">
-            {{ p.categoriaNombre }} · {{ p.marcaNombre }}
-          </div>
+
+          <!-- INFO -->
+          <div class="product-badge">{{ p.marcaNombre }}</div>
           <div class="product-name">{{ p.nombre }}</div>
           <div class="product-spec">{{ p.especResumen }}</div>
-          <div class="product-price">S/ {{ p.precio | number:'1.0-0' }}</div>
-          <div style="font-size:12px;color:#16a34a;font-weight:700">
-            {{ p.stock > 0 ? p.stock + ' en stock' : 'Sin stock' }}
+
+          <!-- PRECIO -->
+          <div class="product-price">{{ formatPrice(p.precio) }}</div>
+
+          <!-- STOCK -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+            <div class="product-stock" [class.stock-ok]="p.stock > 0" [class.stock-no]="p.stock === 0">
+              {{ p.stock > 0 ? '● En stock' : '○ Sin stock' }}
+            </div>
+            <div style="font-size:11px;color:var(--muted);font-weight:600">
+              {{ p.stock > 0 ? p.stock + ' unidades' : '' }}
+            </div>
           </div>
-          <button class="btn-primary" style="width:100%;justify-content:center;margin-top:12px;font-size:13px;padding:10px">
-            Ver detalle
-          </button>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px">
+            <button class="btn-primary" style="justify-content:center;font-size:12px;padding:9px"
+                    (click)="verDetalle(p.id);$event.stopPropagation()">
+              Ver detalle
+            </button>
+            <button (click)="agregarCarrito(p);$event.stopPropagation()"
+              style="width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+                     background:var(--white);cursor:pointer;font-size:18px;
+                     display:flex;align-items:center;justify-content:center;
+                     transition:background .15s"
+              title="Agregar al carrito"
+              onmouseover="this.style.background='#f0f4ff'"
+              onmouseout="this.style.background='var(--white)'">
+              🛒
+            </button>
+          </div>
         </div>
-      }
+      </div>
     </div>
-  }
+  </div>
 </div>
 
-<!-- FLOATING CHAT -->
-<button class="float-chat" (click)="irChat()">💬</button>
+<!-- Widget flotante (FIX 2) -->
+<div style="position:fixed;right:24px;bottom:24px;z-index:9999">
+  <div *ngIf="widgetOpen"
+    style="margin-bottom:12px;background:#fff;border-radius:20px;
+           box-shadow:0 8px 40px rgba(15,23,42,.18);overflow:hidden;width:300px">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);padding:16px 20px;color:#fff">
+      <div style="font-weight:900;font-size:15px">ShadowByte · Soporte</div>
+    </div>
+    <a routerLink="/chat" (click)="widgetOpen=false"
+       style="display:flex;align-items:center;gap:12px;padding:14px 20px;
+              border-bottom:1px solid #f1f5f9;text-decoration:none;cursor:pointer;background:#fff">
+      <span style="font-size:24px">🤖</span>
+      <div>
+        <div style="font-weight:800;font-size:13px;color:#0f172a">Shadow IA</div>
+        <div style="font-size:11px;color:#64748b">Chat web con IA</div>
+      </div>
+    </a>
+    <a href="https://api.whatsapp.com/send?phone=51999000001" target="_blank"
+       style="display:flex;align-items:center;gap:12px;padding:14px 20px;
+              text-decoration:none;cursor:pointer;background:#fff">
+      <span style="font-size:24px">📱</span>
+      <div>
+        <div style="font-weight:800;font-size:13px;color:#0f172a">WhatsApp</div>
+        <div style="font-size:11px;color:#64748b">Respuesta inmediata</div>
+      </div>
+    </a>
+  </div>
+  <button (click)="widgetOpen=!widgetOpen"
+    style="width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+           background:linear-gradient(135deg,#4f46e5,#7c3aed);
+           box-shadow:0 4px 24px rgba(79,70,229,.45);font-size:26px;color:#fff;
+           position:relative;transition:transform .2s"
+    [style.transform]="widgetOpen ? 'rotate(45deg)' : 'rotate(0)'">
+    {{ widgetOpen ? '✕' : '💬' }}
+    <span style="position:absolute;top:2px;right:2px;width:14px;height:14px;
+                 border-radius:50%;background:#22c55e;border:2px solid #fff"></span>
+  </button>
+</div>
