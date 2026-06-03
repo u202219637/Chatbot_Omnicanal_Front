@@ -1,0 +1,85 @@
+<div style="height:100vh;display:flex;flex-direction:column;background:#f8f9fc">
+
+  <!-- HEADER -->
+  <header class="sb-header">
+    <a class="sb-brand" (click)="irCatalogo()" style="cursor:pointer">
+      <div class="sb-logo">S</div>ShadowByte
+    </a>
+    <div class="sb-spacer"></div>
+    <div class="sb-user">
+      <span>{{ auth.getUsername() }}</span>
+      <div class="sb-avatar">{{ auth.getUsername().substring(0,2).toUpperCase() }}</div>
+      <button class="btn-outline" (click)="logout()">Salir</button>
+    </div>
+  </header>
+
+  <!-- CHAT LAYOUT -->
+  <div style="flex:1;display:grid;grid-template-columns:260px 1fr;max-width:1400px;width:100%;margin:0 auto;height:calc(100vh - 72px)">
+
+    <!-- SIDEBAR -->
+    <aside style="border-right:1px solid #e6eaf2;padding:24px;background:#fff;overflow-y:auto">
+      <div style="font-size:18px;font-weight:800;margin-bottom:16px">Consultas</div>
+      <div (click)="input='¿Qué laptop me recomiendas para trabajo y estudio?'"
+        style="padding:12px 14px;border-radius:13px;font-size:14px;font-weight:700;color:#475569;cursor:pointer;margin-bottom:8px;border:1px solid #e6eaf2">
+        ▣ ¿Qué laptop me recomiendas?
+      </div>
+      <div (click)="input='Tengo un presupuesto de S/ 3,500. ¿Qué opciones me recomiendas?'"
+        style="padding:12px 14px;border-radius:13px;font-size:14px;font-weight:700;color:#475569;cursor:pointer;margin-bottom:8px;border:1px solid #e6eaf2">
+        ▣ Tengo S/ 3,500 de presupuesto
+      </div>
+      <div (click)="input='¿Cuál es la política de garantía de ShadowByte?'"
+        style="padding:12px 14px;border-radius:13px;font-size:14px;font-weight:700;color:#475569;cursor:pointer;margin-bottom:8px;border:1px solid #e6eaf2">
+        ▣ ¿Cuál es la garantía?
+      </div>
+      <div (click)="input='¿Cómo puedo continuar esta conversación por WhatsApp?'"
+        style="padding:12px 14px;border-radius:13px;font-size:14px;font-weight:700;color:#475569;cursor:pointer;margin-bottom:8px;border:1px solid #e6eaf2">
+        ▣ Continuar por WhatsApp
+      </div>
+      <button class="btn-outline" style="width:100%;justify-content:center;margin-top:16px" (click)="nuevo()">
+        Nuevo chat
+      </button>
+    </aside>
+
+    <!-- CHAT AREA -->
+    <div style="display:flex;flex-direction:column;background:#fff">
+
+      <!-- BOT HEADER -->
+      <div style="height:72px;display:flex;align-items:center;gap:12px;padding:0 24px;border-bottom:1px solid #e6eaf2">
+        <div style="width:46px;height:46px;border-radius:50%;background:#2f28a8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900">S</div>
+        <div>
+          <div style="font-weight:800">Shadow IA●</div>
+          <div style="font-size:13px;color:#64748b">Asistente virtual para compras tecnológicas</div>
+        </div>
+      </div>
+
+      <!-- MENSAJES -->
+      <div #chatBox style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:4px">
+        @for (m of mensajes; track $index) {
+          <div [class]="m.tipo === 'bot' ? 'bubble-bot' : 'bubble-you'"
+               [innerHTML]="m.texto.replace('\n','<br>')">
+          </div>
+          @if (m.fuentes && m.fuentes.length > 0) {
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+              @for (f of m.fuentes; track $index) {
+                <span style="background:#f0efff;color:#2f28a8;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700">
+                  📄 {{ f.tituloDocumento }} ({{ f.scoreRelevancia | number:'1.0-2' }})
+                </span>
+              }
+            </div>
+          }
+        }
+      </div>
+
+      <!-- INPUT -->
+      <div style="padding:18px 24px;border-top:1px solid #e6eaf2;display:flex;gap:12px">
+        <input [(ngModel)]="input"
+          style="flex:1;height:48px;border:1px solid #e6eaf2;border-radius:13px;padding:0 16px;font-family:inherit;font-size:14px;outline:none"
+          placeholder="Escribe tu consulta..."
+          (keydown.enter)="enviar()">
+        <button class="btn-primary" (click)="enviar()" [disabled]="loading" style="padding:0 20px">
+          {{ loading ? '...' : '➤' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8f9fc">
+  <div class="sb-card" style="width:100%;max-width:420px">
+
+    <!-- Brand -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px">
+      <div class="sb-logo">S</div>
+      <div>
+        <div style="font-weight:900;font-size:20px;color:#2f28a8">ShadowByte</div>
+        <div style="font-size:13px;color:#64748b">Ingresa a tu cuenta</div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    @if (error) {
+      <div style="background:#fee2e2;color:#be123c;padding:12px 16px;border-radius:12px;font-size:14px;margin-bottom:20px">
+        {{ error }}
+      </div>
+    }
+
+    <!-- Form -->
+    <div style="margin-bottom:16px">
+      <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Usuario</label>
+      <input [(ngModel)]="username" type="text" placeholder="Tu username"
+        style="width:100%;height:48px;border:1px solid #e6eaf2;border-radius:13px;padding:0 14px;font-family:inherit;font-size:14px;outline:none"
+        (keydown.enter)="login()">
+    </div>
+
+    <div style="margin-bottom:24px">
+      <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Contraseña</label>
+      <input [(ngModel)]="password" type="password" placeholder="Tu contraseña"
+        style="width:100%;height:48px;border:1px solid #e6eaf2;border-radius:13px;padding:0 14px;font-family:inherit;font-size:14px;outline:none"
+        (keydown.enter)="login()">
+    </div>
+
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-bottom:16px"
+      (click)="login()" [disabled]="loading">
+      {{ loading ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+
+    <div style="text-align:center;font-size:14px;color:#64748b">
+      ¿No tienes cuenta?
+      <a routerLink="/registro" style="color:#2f28a8;font-weight:700;text-decoration:none"> Regístrate</a>
+    </div>
+  </div>
+</div>
