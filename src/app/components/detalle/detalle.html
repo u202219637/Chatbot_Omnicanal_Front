@@ -1,0 +1,40 @@
+<header class="sb-header">
+  <a class="sb-brand" style="cursor:pointer" (click)="volver()">
+    <div class="sb-logo">S</div>ShadowByte
+  </a>
+  <div class="sb-spacer"></div>
+  <div class="sb-user">
+    <span>{{ auth.getUsername() }}</span>
+    <div class="sb-avatar">{{ auth.getUsername().substring(0,2).toUpperCase() }}</div>
+    <button class="btn-outline" (click)="logout()">Salir</button>
+  </div>
+</header>
+
+<div style="padding:40px 60px;max-width:1400px;margin:0 auto">
+  <button class="btn-outline" style="margin-bottom:24px" (click)="volver()">← Volver</button>
+
+  <h2 style="font-size:28px;font-weight:900;margin-bottom:16px">Detalle del producto</h2>
+
+  @if (loading) {
+    <p style="color:#64748b">Cargando datos...</p>
+  }
+
+  @if (!loading && producto) {
+    <div class="sb-card" style="max-width:600px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:8px">
+        {{ producto.categoriaNombre }} · {{ producto.marcaNombre }}
+      </div>
+      <h3 style="font-size:22px;font-weight:900;margin-bottom:8px">{{ producto.nombre }}</h3>
+      <p style="color:#64748b;margin-bottom:16px">{{ producto.especResumen }}</p>
+      <div style="font-size:28px;font-weight:900;color:#2f28a8;margin-bottom:16px">S/ {{ producto.precio | number:'1.0-0' }}</div>
+      <div style="font-size:13px;color:#16a34a;font-weight:700;margin-bottom:24px">
+        {{ producto.stock > 0 ? producto.stock + ' en stock' : 'Sin stock' }}
+      </div>
+      <button class="btn-primary" (click)="irChat()">💬 Consultar por chat</button>
+    </div>
+  }
+
+  @if (!loading && !producto) {
+    <p style="color:#64748b">Producto no encontrado.</p>
+  }
+</div>

@@ -1,0 +1,86 @@
+<!-- HEADER -->
+<header class="sb-header">
+  <a class="sb-brand" routerLink="/landing">
+    <div class="sb-logo">S</div>
+    ShadowByte
+  </a>
+  <div class="sb-spacer"></div>
+  <button class="btn-outline" style="margin-right:12px" (click)="goLogin()">Iniciar sesión</button>
+  <button class="btn-primary" (click)="goLogin()">Abrir chat</button>
+</header>
+
+<!-- HERO -->
+<section style="display:grid;grid-template-columns:1fr 1fr;gap:48px;padding:80px 60px;max-width:1400px;margin:0 auto;align-items:center">
+  <div>
+    <div style="display:inline-flex;align-items:center;gap:8px;background:#f0efff;color:#2f28a8;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:24px">
+      Asistente con IA · Shadowchat
+    </div>
+    <h1 style="font-size:58px;line-height:1.05;letter-spacing:-.055em;color:#0f172a;margin-bottom:20px">
+      Tu asistente inteligente para compras tecnológicas
+    </h1>
+    <p style="color:#64748b;font-size:18px;line-height:1.6;margin-bottom:36px">
+      Resuelve tus dudas, compara productos y recibe recomendaciones personalizadas en segundos.
+    </p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <button class="btn-primary" (click)="goLogin()">
+        ▣ Abrir chat ahora
+      </button>
+      <button class="btn-outline">
+        Continuar por WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- CHAT PREVIEW -->
+  <div class="sb-card" style="max-width:480px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div style="width:46px;height:46px;border-radius:50%;background:#2f28a8;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900">S</div>
+      <div>
+        <div style="font-weight:800">Shadow IA●</div>
+        <div style="font-size:13px;color:#64748b">Asistente virtual para compras tecnológicas</div>
+      </div>
+    </div>
+    <div class="bubble-bot">Hola, soy Shadow IA.<br>¿En qué puedo ayudarte hoy?</div>
+    <div class="bubble-you">Necesito una laptop para diseño gráfico con buen rendimiento.</div>
+    <div style="display:flex;gap:6px;padding:12px 0">
+      <div style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></div>
+      <div style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></div>
+      <div style="width:8px;height:8px;border-radius:50%;background:#94a3b8"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;border-top:1px solid #e6eaf2;padding-top:16px">
+      <input style="flex:1;border:1px solid #e6eaf2;border-radius:12px;padding:12px 16px;font-family:inherit;font-size:14px;outline:none"
+             placeholder="Escribe tu consulta..." (keydown.enter)="goLogin()">
+      <button class="btn-primary" style="padding:12px 16px" (click)="goLogin()">➤</button>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section style="padding:0 60px 80px;max-width:1400px;margin:0 auto">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+    <div class="sb-card">
+      <div style="width:58px;height:58px;border-radius:17px;background:#f0efff;color:#2f28a8;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px">▣</div>
+      <div style="font-weight:800;margin-bottom:8px">Consultas inteligentes</div>
+      <div style="color:#64748b;font-size:14px;line-height:1.6">Respuestas precisas sobre laptops y periféricos.</div>
+    </div>
+    <div class="sb-card">
+      <div style="width:58px;height:58px;border-radius:17px;background:#f0efff;color:#2f28a8;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px">◎</div>
+      <div style="font-weight:800;margin-bottom:8px">Recomendaciones personalizadas</div>
+      <div style="color:#64748b;font-size:14px;line-height:1.6">Según tus necesidades y presupuesto.</div>
+    </div>
+    <div class="sb-card">
+      <div style="width:58px;height:58px;border-radius:17px;background:#f0efff;color:#2f28a8;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px">✓</div>
+      <div style="font-weight:800;margin-bottom:8px">Información confiable</div>
+      <div style="color:#64748b;font-size:14px;line-height:1.6">Catálogo, garantías y políticas actualizadas.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="border-top:1px solid #e6eaf2;padding:24px 60px;display:flex;align-items:center;gap:12px;color:#64748b;font-size:14px">
+  <div class="sb-logo" style="width:28px;height:28px;font-size:13px;border-radius:8px">S</div>
+  ShadowByte © 2025 · Lima, Perú
+</footer>
+
+<!-- FLOATING CHAT BUTTON -->
+<button class="float-chat" (click)="goLogin()">💬</button>

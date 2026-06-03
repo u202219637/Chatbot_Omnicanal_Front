@@ -1,0 +1,40 @@
+<header class="sb-header">
+  <a class="sb-brand" style="cursor:pointer" (click)="volver()">
+    <div class="sb-logo">S</div>ShadowByte
+  </a>
+  <div class="sb-spacer"></div>
+  <div class="sb-user">
+    <span>{{ auth.getUsername() }}</span>
+    <div class="sb-avatar">{{ auth.getUsername().substring(0,2).toUpperCase() }}</div>
+    <button class="btn-outline" (click)="logout()">Salir</button>
+  </div>
+</header>
+
+<div style="padding:40px 60px;max-width:1400px;margin:0 auto">
+  <button class="btn-outline" style="margin-bottom:24px" (click)="volver()">← Volver</button>
+
+  <h2 style="font-size:28px;font-weight:900;margin-bottom:24px">Historial de consultas</h2>
+
+  @if (loading) {
+    <p style="color:#64748b">Cargando datos...</p>
+  }
+
+  @if (!loading && historial.length === 0) {
+    <p style="color:#64748b">No hay conversaciones registradas.</p>
+  }
+
+  @if (!loading && historial.length > 0) {
+    <div class="sb-table">
+      <div class="sb-table-head" style="display:flex;gap:16px">
+        <span style="flex:1">Mensaje</span>
+        <span style="width:160px">Fecha</span>
+      </div>
+      @for (h of historial; track $index) {
+        <div class="sb-table-row">
+          <span style="flex:1">{{ h.contenido }}</span>
+          <span style="width:160px;color:#64748b;font-size:13px">{{ h.fecha }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

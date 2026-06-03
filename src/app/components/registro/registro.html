@@ -1,0 +1,57 @@
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8f9fc;padding:40px 20px">
+  <div class="sb-card" style="width:100%;max-width:480px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+      <div class="sb-logo">S</div>
+      <div>
+        <div style="font-weight:900;font-size:20px;color:#2f28a8">Crear cuenta</div>
+        <div style="font-size:13px;color:#64748b">ShadowByte</div>
+      </div>
+    </div>
+
+    @if (error) {
+      <div style="background:#fee2e2;color:#be123c;padding:12px;border-radius:12px;font-size:14px;margin-bottom:16px">{{ error }}</div>
+    }
+    @if (success) {
+      <div style="background:#dcfce7;color:#15803d;padding:12px;border-radius:12px;font-size:14px;margin-bottom:16px">{{ success }}</div>
+    }
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div>
+        <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Nombres</label>
+        <input [(ngModel)]="form.nombres" style="width:100%;height:44px;border:1px solid #e6eaf2;border-radius:12px;padding:0 12px;font-family:inherit;font-size:14px;outline:none">
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Apellidos</label>
+        <input [(ngModel)]="form.apellidos" style="width:100%;height:44px;border:1px solid #e6eaf2;border-radius:12px;padding:0 12px;font-family:inherit;font-size:14px;outline:none">
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Correo</label>
+      <input [(ngModel)]="form.correo" type="email" style="width:100%;height:44px;border:1px solid #e6eaf2;border-radius:12px;padding:0 12px;font-family:inherit;font-size:14px;outline:none">
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Teléfono</label>
+      <input [(ngModel)]="form.telefono" style="width:100%;height:44px;border:1px solid #e6eaf2;border-radius:12px;padding:0 12px;font-family:inherit;font-size:14px;outline:none">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
+      <div>
+        <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Username</label>
+        <input [(ngModel)]="form.username" style="width:100%;height:44px;border:1px solid #e6eaf2;border-radius:12px;padding:0 12px;font-family:inherit;font-size:14px;outline:none">
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Contraseña</label>
+        <input [(ngModel)]="form.password" type="password" style="width:100%;height:44px;border:1px solid #e6eaf2;border-radius:12px;padding:0 12px;font-family:inherit;font-size:14px;outline:none">
+      </div>
+    </div>
+
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-bottom:16px" (click)="registrar()" [disabled]="loading">
+      {{ loading ? 'Creando...' : 'Crear cuenta' }}
+    </button>
+    <div style="text-align:center;font-size:14px;color:#64748b">
+      ¿Ya tienes cuenta? <a routerLink="/login" style="color:#2f28a8;font-weight:700;text-decoration:none">Inicia sesión</a>
+    </div>
+  </div>
+</div>
