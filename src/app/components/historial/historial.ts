@@ -1,34 +1,38 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { NavbarComponent } from '../shared/navbar/navbar';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-historial',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, NavbarComponent],
   templateUrl: './historial.html',
   styleUrl: './historial.css'
 })
 export class HistorialComponent implements OnInit {
-  historial: any[] = [];
-  loading = true;
+  conversaciones: any[] = [];
+  loading    = true;
+  widgetOpen = false;
 
-  constructor(
-    private router: Router,
-    private http: HttpClient,
-    public auth: AuthService
-  ) {}
+  constructor(private http: HttpClient, private router: Router, public auth: AuthService) {}
 
   ngOnInit() {
     this.http.get<any[]>(`${environment.apiUrl}/chat/historial`).subscribe({
-      next: data => { this.historial = data; this.loading = false; },
-      error: ()   => { this.loading = false; }
+      next: d => { this.conversaciones = d; this.loading = false; },
+      error: ()=> { this.loading = false; }
     });
   }
 
-  volver()  { this.router.navigate(['/catalogo']); }
-  logout()  { this.auth.logout(); }
+  verChat(id: number) { this.router.navigate(['/chat'], { queryParams: { id } }); }
+  logout() { this.auth.logout(); }
+  formatFecha(f: string) {
+    return new Date(f).toLocaleDateString('es-PE', {
+      day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+  }
+  stars(n: number) { return '★'.repeat(n || 0) + '☆'.repeat(5 - (n || 0)); }
 }

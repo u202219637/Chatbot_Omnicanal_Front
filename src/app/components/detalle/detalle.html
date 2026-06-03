@@ -1,40 +1,279 @@
-<header class="sb-header">
-  <a class="sb-brand" style="cursor:pointer" (click)="volver()">
-    <div class="sb-logo">S</div>ShadowByte
-  </a>
-  <div class="sb-spacer"></div>
-  <div class="sb-user">
-    <span>{{ auth.getUsername() }}</span>
-    <div class="sb-avatar">{{ auth.getUsername().substring(0,2).toUpperCase() }}</div>
-    <button class="btn-outline" (click)="logout()">Salir</button>
-  </div>
-</header>
+<app-navbar></app-navbar>
 
-<div style="padding:40px 60px;max-width:1400px;margin:0 auto">
-  <button class="btn-outline" style="margin-bottom:24px" (click)="volver()">← Volver</button>
+<div style="background:var(--soft);min-height:100vh" *ngIf="!loading && producto">
 
-  <h2 style="font-size:28px;font-weight:900;margin-bottom:16px">Detalle del producto</h2>
-
-  @if (loading) {
-    <p style="color:#64748b">Cargando datos...</p>
-  }
-
-  @if (!loading && producto) {
-    <div class="sb-card" style="max-width:600px">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:8px">
-        {{ producto.categoriaNombre }} · {{ producto.marcaNombre }}
-      </div>
-      <h3 style="font-size:22px;font-weight:900;margin-bottom:8px">{{ producto.nombre }}</h3>
-      <p style="color:#64748b;margin-bottom:16px">{{ producto.especResumen }}</p>
-      <div style="font-size:28px;font-weight:900;color:#2f28a8;margin-bottom:16px">S/ {{ producto.precio | number:'1.0-0' }}</div>
-      <div style="font-size:13px;color:#16a34a;font-weight:700;margin-bottom:24px">
-        {{ producto.stock > 0 ? producto.stock + ' en stock' : 'Sin stock' }}
-      </div>
-      <button class="btn-primary" (click)="irChat()">💬 Consultar por chat</button>
+  <!-- BREADCRUMB -->
+  <div style="background:var(--white);border-bottom:1px solid var(--line);padding:12px 32px">
+    <div style="max-width:1300px;margin:0 auto;font-size:13px;color:var(--muted);font-weight:600">
+      <a routerLink="/catalogo" style="color:var(--p);text-decoration:none">Catálogo</a>
+      <span style="margin:0 8px">›</span>
+      <span>{{ producto.categoriaNombre }}</span>
+      <span style="margin:0 8px">›</span>
+      <span style="color:var(--ink)">{{ producto.nombre }}</span>
     </div>
-  }
+  </div>
 
-  @if (!loading && !producto) {
-    <p style="color:#64748b">Producto no encontrado.</p>
-  }
+  <div style="max-width:1300px;margin:0 auto;padding:28px 32px">
+
+    <!-- PRODUCTO PRINCIPAL -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:48px">
+
+      <!-- IMAGEN -->
+      <div style="background:var(--white);border:1px solid var(--line);border-radius:20px;
+                  padding:40px;display:flex;align-items:center;justify-content:center;min-height:400px">
+        <img *ngIf="producto.urlImagen" [src]="producto.urlImagen" [alt]="producto.nombre"
+             style="max-height:320px;max-width:100%;object-fit:contain">
+        <span *ngIf="!producto.urlImagen" style="font-size:80px">💻</span>
+      </div>
+
+      <!-- INFO -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div>
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;
+                      letter-spacing:.08em;color:var(--muted);margin-bottom:8px">
+            {{ producto.categoriaNombre }} · {{ producto.marcaNombre }}
+          </div>
+          <h1 style="font-size:28px;font-weight:900;letter-spacing:-.04em;
+                      line-height:1.2;margin-bottom:10px">{{ producto.nombre }}</h1>
+          <div style="font-size:15px;color:var(--muted);line-height:1.7">{{ producto.descripcion }}</div>
+        </div>
+
+        <!-- Rating resumen -->
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="color:#f59e0b;font-size:18px;letter-spacing:2px">
+            {{ stars(promedioRating()).join('') }}
+          </div>
+          <span style="font-size:14px;font-weight:700;color:var(--ink)">{{ promedioRating() }}</span>
+          <span style="font-size:13px;color:var(--muted)">({{ resenas.length }} reseñas)</span>
+        </div>
+
+        <!-- PRECIO -->
+        <div style="font-size:40px;font-weight:900;color:var(--p);letter-spacing:-.04em">
+          S/ {{ formatPrice(producto.precio) }}
+        </div>
+
+        <!-- STOCK -->
+        <div style="display:flex;align-items:center;gap:10px">
+          <span [class]="producto.stock > 0 ? 'badge badge-green' : 'badge badge-red'"
+                style="font-size:13px;padding:7px 14px">
+            {{ producto.stock > 0 ? '✓ ' + producto.stock + ' unidades en stock' : '✗ Sin stock' }}
+          </span>
+        </div>
+
+        <!-- CANTIDAD + CARRITO -->
+        <div style="display:flex;align-items:center;gap:12px;padding:16px;
+                    background:var(--soft);border-radius:14px;border:1px solid var(--line)">
+          <div style="font-size:13px;font-weight:700;color:var(--muted)">Cantidad:</div>
+          <div style="display:flex;align-items:center;gap:0;border:1px solid var(--line);
+                      border-radius:8px;overflow:hidden;background:var(--white)">
+            <button (click)="cantidad=cantidad>1?cantidad-1:1"
+              style="width:36px;height:36px;font-size:18px;font-weight:700;
+                     border:none;cursor:pointer;background:none">−</button>
+            <span style="width:40px;text-align:center;font-weight:800;font-size:15px">{{ cantidad }}</span>
+            <button (click)="cantidad=cantidad+1"
+              style="width:36px;height:36px;font-size:18px;font-weight:700;
+                     border:none;cursor:pointer;background:none">+</button>
+          </div>
+          <button class="btn-primary" style="flex:1;justify-content:center;font-size:15px;padding:14px"
+                  (click)="agregarAlCarrito()" [disabled]="producto.stock === 0">
+            🛒 Agregar al carrito
+          </button>
+        </div>
+
+        <!-- SPECS -->
+        <div style="background:var(--soft);border-radius:14px;padding:18px;border:1px solid var(--line)">
+          <div style="font-size:14px;font-weight:800;margin-bottom:10px">Especificaciones</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.9">
+            {{ producto.especificaciones || producto.especResumen }}
+          </div>
+        </div>
+
+        <!-- BOTONES IA -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button class="btn-primary" style="justify-content:center;padding:14px"
+                  (click)="preguntarShadowIA()">
+            🤖 Preguntar a Shadow IA
+          </button>
+          <button class="btn-outline" style="justify-content:center;padding:14px"
+                  (click)="consultarWhatsApp()">
+            📱 Consultar por WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESEÑAS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:40px">
+
+      <!-- Lista reseñas -->
+      <div>
+        <div style="font-size:20px;font-weight:900;margin-bottom:4px">Reseñas de clientes</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:20px">
+          {{ resenas.length }} reseñas · Promedio {{ promedioRating() }}/5
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div *ngFor="let r of resenas"
+            style="background:var(--white);border:1px solid var(--line);
+                   border-radius:16px;padding:18px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+              <div>
+                <div style="font-weight:800;font-size:14px">{{ r.usuario }}</div>
+                <div style="font-size:12px;color:var(--muted)">{{ r.fecha }}</div>
+              </div>
+              <div style="color:#f59e0b;letter-spacing:2px">{{ stars(r.rating).join('') }}</div>
+            </div>
+            <div style="font-size:14px;color:#475569;line-height:1.6">{{ r.texto }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escribir reseña -->
+      <div style="background:var(--white);border:1px solid var(--line);border-radius:20px;padding:24px;height:fit-content">
+        <div style="font-size:18px;font-weight:900;margin-bottom:16px">Escribir una reseña</div>
+
+        <div style="margin-bottom:16px">
+          <label class="sb-label">Tu calificación</label>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <span *ngFor="let s of [1,2,3,4,5]"
+              (click)="nuevaResena.rating=s"
+              (mouseenter)="ratingHover=s"
+              (mouseleave)="ratingHover=0"
+              style="font-size:28px;cursor:pointer;transition:transform .1s"
+              [style.transform]="(ratingHover||nuevaResena.rating)>=s?'scale(1.2)':'scale(1)'">
+              {{ (ratingHover||nuevaResena.rating) >= s ? '★' : '☆' }}
+            </span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <label class="sb-label">Tu opinión</label>
+          <textarea [(ngModel)]="nuevaResena.texto"
+            style="width:100%;min-height:100px;border:1.5px solid var(--line);border-radius:12px;
+                   padding:12px 14px;font-family:inherit;font-size:14px;outline:none;resize:vertical"
+            placeholder="¿Qué te pareció el producto?"></textarea>
+        </div>
+
+        <button class="btn-primary" style="width:100%;justify-content:center"
+                (click)="enviarResena()">
+          Publicar reseña
+        </button>
+      </div>
+    </div>
+
+    <!-- RELACIONADOS -->
+    <div *ngIf="relacionados.length > 0">
+      <div style="font-size:20px;font-weight:900;margin-bottom:4px">También te puede interesar</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:18px">Productos de la misma categoría</div>
+      <div class="product-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="product-card" *ngFor="let p of relacionados" [routerLink]="['/detalle', p.id]">
+          <div class="product-img">
+            <img *ngIf="p.urlImagen" [src]="p.urlImagen" [alt]="p.nombre">
+            <span *ngIf="!p.urlImagen">💻</span>
+          </div>
+          <div class="product-name">{{ p.nombre }}</div>
+          <div class="product-price">S/ {{ formatPrice(p.precio) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-spinner" *ngIf="loading">⏳ Cargando producto...</div>
+
+<!-- MINI CHAT SHADOW IA -->
+<div *ngIf="miniChatOpen"
+  style="position:fixed;right:24px;bottom:24px;z-index:9999;
+         width:340px;background:#fff;border-radius:20px;
+         box-shadow:0 8px 40px rgba(15,23,42,.18);overflow:hidden;
+         display:flex;flex-direction:column;height:480px">
+
+  <div style="background:linear-gradient(135deg,#1e1b4b,#4f46e5);
+              padding:16px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0">
+    <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);
+                display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff">S</div>
+    <div style="flex:1">
+      <div style="font-weight:800;font-size:14px;color:#fff">Shadow IA</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.7)">● En línea · Responde al instante</div>
+    </div>
+    <button (click)="miniChatOpen=false"
+      style="background:rgba(255,255,255,.15);border:none;color:#fff;
+             width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px">✕</button>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;
+              background:#f8fafc">
+    <div *ngFor="let m of miniMensajes">
+      <div [style.background]="m.tipo==='bot' ? '#fff' : 'linear-gradient(135deg,#4f46e5,#7c3aed)'"
+           [style.color]="m.tipo==='bot' ? '#0f172a' : '#fff'"
+           [style.margin-left]="m.tipo==='you' ? 'auto' : '0'"
+           [style.border]="m.tipo==='bot' ? '1px solid #e2e8f0' : 'none'"
+           style="padding:10px 14px;border-radius:12px;max-width:85%;
+                  font-size:13px;line-height:1.55;width:fit-content">
+        {{ m.texto }}
+      </div>
+    </div>
+    <div *ngIf="miniLoading" style="display:flex;gap:4px;padding:8px">
+      <div *ngFor="let d of [1,2,3]"
+        style="width:7px;height:7px;border-radius:50%;background:#94a3b8;
+               animation:typing 1.2s infinite"
+        [style.animation-delay]="d===1?'0s':d===2?'.3s':'.6s'"></div>
+    </div>
+  </div>
+
+  <div style="padding:12px;border-top:1px solid #e2e8f0;display:flex;gap:8px;background:#fff;flex-shrink:0">
+    <input [(ngModel)]="miniInput"
+      style="flex:1;height:38px;border:1px solid #e2e8f0;border-radius:10px;
+             padding:0 12px;font-family:inherit;font-size:13px;outline:none"
+      placeholder="Escribe tu consulta..."
+      (keydown.enter)="enviarMiniMensaje()">
+    <button (click)="enviarMiniMensaje()"
+      style="width:38px;height:38px;border-radius:10px;border:none;cursor:pointer;
+             background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:16px">➤</button>
+  </div>
+</div>
+
+<!-- WIDGET FLOTANTE -->
+<div style="position:fixed;right:24px;bottom:24px;z-index:9998" *ngIf="!miniChatOpen">
+  <div *ngIf="widgetOpen"
+    style="margin-bottom:12px;background:#fff;border-radius:20px;
+           box-shadow:0 8px 40px rgba(15,23,42,.18);overflow:hidden;width:300px">
+    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);padding:16px 20px;color:#fff">
+      <div style="font-weight:900;font-size:15px">ShadowByte · Soporte</div>
+      <div style="font-size:12px;opacity:.7;margin-top:2px">¿Cómo quieres contactarnos?</div>
+    </div>
+    <div (click)="preguntarShadowIA()"
+       style="display:flex;align-items:center;gap:12px;padding:14px 20px;
+              border-bottom:1px solid #f1f5f9;cursor:pointer;background:#fff"
+       onmouseover="this.style.background='#f8faff'"
+       onmouseout="this.style.background='#fff'">
+      <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#6d28d9,#7c3aed);
+                  display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
+      <div>
+        <div style="font-weight:800;font-size:13px;color:#0f172a">Shadow IA</div>
+        <div style="font-size:11px;color:#64748b">Chat con IA · Respuesta inmediata</div>
+      </div>
+    </div>
+    <div (click)="consultarWhatsApp()"
+       style="display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;background:#fff"
+       onmouseover="this.style.background='#f0fdf4'"
+       onmouseout="this.style.background='#fff'">
+      <div style="width:40px;height:40px;border-radius:10px;background:#22c55e;
+                  display:flex;align-items:center;justify-content:center;font-size:20px">📱</div>
+      <div>
+        <div style="font-weight:800;font-size:13px;color:#0f172a">WhatsApp</div>
+        <div style="font-size:11px;color:#64748b">Mismo historial · Continúa siempre</div>
+      </div>
+    </div>
+  </div>
+  <button (click)="widgetOpen=!widgetOpen"
+    style="width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+           background:linear-gradient(135deg,#4f46e5,#7c3aed);
+           box-shadow:0 4px 24px rgba(79,70,229,.45);font-size:24px;color:#fff;
+           display:flex;align-items:center;justify-content:center;
+           transition:transform .2s;position:relative">
+    {{ widgetOpen ? '✕' : '💬' }}
+    <span style="position:absolute;top:2px;right:2px;width:14px;height:14px;
+                 border-radius:50%;background:#22c55e;border:2px solid #fff"></span>
+  </button>
 </div>

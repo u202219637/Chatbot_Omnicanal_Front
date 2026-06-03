@@ -50,5 +50,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/escalaciones/escalaciones').then(m => m.EscalacionesComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'carrito',
+    loadComponent: () => import('./components/carrito/carrito').then(m => m.CarritoComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: 'landing' }
 ];

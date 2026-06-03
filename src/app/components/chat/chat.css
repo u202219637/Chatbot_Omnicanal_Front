@@ -1,0 +1,12 @@
+.typing-dot {
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #94a3b8; margin: 0 2px;
+  animation: typing 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .3s; }
+.typing-dot:nth-child(3) { animation-delay: .6s; }
+@keyframes typing {
+  0%,60%,100% { transform: translateY(0); }
+  30%          { transform: translateY(-8px); }
+}
