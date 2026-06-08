@@ -1,33 +1,109 @@
 <app-navbar></app-navbar>
 
-<div class="page">
-  <div class="page-body">
-    <div class="section-title">Base RAG</div>
-    <div class="section-sub">Documentos cargados para el asistente IA</div>
+<div class="rag-page">
+  <div class="rag-layout">
 
-    <div class="loading-spinner" *ngIf="loading">⏳ Cargando documentos...</div>
+    <!-- SIDEBAR -->
+    <aside class="rag-sidebar">
+      <h2 class="rag-titulo">Base RAG</h2>
+      <p class="rag-subtitulo">Gestiona documentos y fuentes que alimentan el conocimiento de Shadow IA.</p>
+      <nav class="rag-nav">
+        <button class="rag-nav-item activo">📊 Resumen</button>
+        <button class="rag-nav-item">📄 Fuentes</button>
+        <button class="rag-nav-item">⚙️ Procesos</button>
+        <button class="rag-nav-item">🔧 Configuración</button>
+      </nav>
+      <div class="rag-sidebar-info">
+        <div class="info-titulo">¿Cómo funciona?</div>
+        <div class="info-texto">Sube tus documentos. Shadow IA extrae, organiza y transforma la información en conocimiento consultable.</div>
+      </div>
+    </aside>
 
-    <div class="empty-state" *ngIf="!loading && documentos.length === 0">
-      <div class="empty-icon">📂</div>
-      No hay documentos cargados.
-    </div>
+    <!-- CONTENIDO -->
+    <main class="rag-main">
 
-    <div *ngIf="!loading && documentos.length > 0"
-         style="background:var(--white);border:1px solid var(--line);border-radius:18px;overflow:hidden">
-      <table class="sb-table" style="width:100%">
-        <thead>
-          <tr>
-            <th>Título</th><th>Estado</th><th>Fecha de carga</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let d of documentos">
-            <td style="font-weight:700">{{ d.titulo }}</td>
-            <td><span class="badge badge-green">{{ d.estado }}</span></td>
-            <td style="color:var(--muted)">{{ d.fechaCarga }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <!-- PIPELINE STEPS -->
+      <div class="pipeline-grid">
+        <div class="pipeline-step" *ngFor="let s of pasos; let i = index">
+          <div class="step-num">{{ i + 1 }}</div>
+          <div class="step-icono">{{ s.icono }}</div>
+          <div class="step-nombre">{{ s.nombre }}</div>
+          <div class="step-desc">{{ s.descripcion }}</div>
+          <div class="step-badge" [class]="s.estadoClass">{{ s.estado }}</div>
+        </div>
+      </div>
+
+      <!-- UPLOAD + STATS -->
+      <div class="rag-fila2">
+
+        <!-- UPLOAD ZONE -->
+        <div class="upload-card"
+             (dragover)="$event.preventDefault()"
+             (drop)="onDrop($event)">
+          <div class="upload-icono">☁️</div>
+          <div class="upload-titulo">Sube tus archivos</div>
+          <div class="upload-subtitulo">Arrastra y suelta aquí o selecciona desde tu dispositivo.</div>
+          <div class="upload-formatos">Formatos: PDF · DOCX · TXT</div>
+          <button class="btn-upload" (click)="fileInput.click()">Seleccionar archivos</button>
+          <input #fileInput type="file" hidden multiple accept=".pdf,.docx,.txt" (change)="onFileSelect($event)">
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="stats-card">
+          <h3 class="card-titulo">Tu base en cifras</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-valor azul">{{ estadisticas.documentos }}</div>
+              <div class="stat-label">Documentos cargados</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-valor morado">{{ estadisticas.bloques | number }}</div>
+              <div class="stat-label">Bloques de información</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-valor verde">{{ estadisticas.tokens }}</div>
+              <div class="stat-label">Tokens procesados</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-valor naranja">{{ estadisticas.completado }}%</div>
+              <div class="stat-label">Procesamiento completado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVIDAD RECIENTE / DOCUMENTOS -->
+      <div class="docs-card">
+        <h3 class="card-titulo">Actividad reciente</h3>
+
+        <div *ngIf="documentos.length === 0" class="docs-vacio">
+          <div style="font-size:32px;margin-bottom:8px">📂</div>
+          <div>No hay documentos cargados aún.</div>
+          <div style="font-size:12px;margin-top:4px">Sube archivos para comenzar a entrenar a Shadow IA.</div>
+        </div>
+
+        <table class="docs-tabla" *ngIf="documentos.length > 0">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Tipo</th>
+              <th>Tamaño</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of documentos">
+              <td class="doc-nombre">📄 {{ d.nombre || d.titulo }}</td>
+              <td><span class="tipo-badge">{{ d.tipo || 'DOC' }}</span></td>
+              <td class="doc-size">{{ d.size || '—' }}</td>
+              <td><span class="estado-badge badge-green">✅ {{ d.estado || 'Procesado' }}</span></td>
+              <td class="doc-fecha">{{ d.fechaCarga || d.fecha || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
   </div>
 </div>

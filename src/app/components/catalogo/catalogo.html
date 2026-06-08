@@ -14,7 +14,7 @@
       </div>
       <select class="sb-input" [(ngModel)]="orden" (change)="aplicarFiltros()"
               style="width:200px">
-        <option value="relevancia">Ordenar por: Relevancia</option>
+        <option value="recomendados">Ordenar por: Recomendados</option>
         <option value="precio_asc">Precio: menor a mayor</option>
         <option value="precio_desc">Precio: mayor a menor</option>
         <option value="nombre">Nombre A-Z</option>
@@ -33,43 +33,44 @@
         <button (click)="limpiar()" style="font-size:12px;font-weight:700;color:var(--p);background:none;border:none;cursor:pointer">Limpiar todo</button>
       </div>
 
-      <!-- Categorías -->
+      <!-- Categorías (radio-style checkbox, single selection) -->
       <div class="filter-section-title">Categoría</div>
       <div style="margin-bottom:18px">
-        <label *ngFor="let c of categorias" class="filter-item" style="display:flex">
+        <label *ngFor="let c of categorias" class="filter-item"
+               [class.filter-item-selected]="categoriaSeleccionada === c.nombre" style="display:flex">
           <div style="display:flex;align-items:center;gap:8px;flex:1">
-            <input type="checkbox" (change)="toggleCategoria(c.id)"
-                   [checked]="categoriasSel.includes(c.id)">
+            <input type="checkbox"
+                   [checked]="categoriaSeleccionada === c.nombre"
+                   (change)="toggleCategoria(c.nombre)">
             <span style="font-size:13px;font-weight:700">{{ c.nombre }}</span>
           </div>
           <span class="filter-count">{{ countCat(c.nombre) }}</span>
         </label>
       </div>
 
-      <!-- Marcas -->
+      <!-- Marca (dropdown select) -->
       <div class="filter-section-title">Marca</div>
       <div style="margin-bottom:18px">
-        <div style="position:relative;margin-bottom:10px">
-          <input class="sb-input" placeholder="Buscar marca..." style="height:36px;font-size:13px">
-        </div>
-        <label *ngFor="let m of marcas" class="filter-item" style="display:flex">
-          <div style="display:flex;align-items:center;gap:8px;flex:1">
-            <input type="checkbox" (change)="toggleMarca(m.id)"
-                   [checked]="marcasSel.includes(m.id)">
-            <span style="font-size:13px;font-weight:700">{{ m.nombre }}</span>
-          </div>
-          <span class="filter-count">{{ countMarca(m.nombre) }}</span>
-        </label>
+        <select class="filtro-select" [(ngModel)]="marcaSeleccionada" (ngModelChange)="aplicarFiltros()">
+          <option [ngValue]="null">Todas las marcas</option>
+          <option *ngFor="let m of marcas" [ngValue]="m.nombre">{{ m.nombre }}</option>
+        </select>
       </div>
 
-      <!-- Precio -->
+      <!-- Precio (inputs MIN / MAX) -->
       <div class="filter-section-title">Rango de precio</div>
-      <input type="range" min="0" [max]="10000" [(ngModel)]="precioMax"
-             (input)="aplicarFiltros()"
-             style="width:100%;accent-color:var(--p);margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted)">
-        <span>S/ 0</span>
-        <span>{{ formatPrice(precioMax) }}</span>
+      <div class="precio-inputs" style="margin-bottom:8px">
+        <div class="precio-campo">
+          <span class="precio-prefijo">S/</span>
+          <input type="number" class="precio-input" placeholder="Desde"
+                 [(ngModel)]="precioMin" (ngModelChange)="aplicarFiltros()" min="0">
+        </div>
+        <span class="precio-separador">—</span>
+        <div class="precio-campo">
+          <span class="precio-prefijo">S/</span>
+          <input type="number" class="precio-input" placeholder="Hasta"
+                 [(ngModel)]="precioMax" (ngModelChange)="aplicarFiltros()" min="0">
+        </div>
       </div>
     </aside>
 
@@ -146,8 +147,55 @@
               🛒
             </button>
           </div>
+          <div *ngIf="esAdmin" style="margin-top:8px">
+            <button (click)="editarProducto(p);$event.stopPropagation()"
+              style="width:100%;padding:7px;border-radius:8px;border:1px solid var(--p);
+                     background:var(--p3);color:var(--p);cursor:pointer;font-size:12px;font-weight:700;
+                     font-family:inherit">
+              ✏️ Editar
+            </button>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDICIÓN ADMIN -->
+<div *ngIf="mostrarModalEdicion"
+  style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
+         display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;padding:28px;width:440px;max-width:90vw;
+              box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="font-size:18px;font-weight:900;margin-bottom:20px">✏️ Editar Producto</div>
+    <div style="display:flex;flex-direction:column;gap:14px" *ngIf="productoEditando">
+      <div>
+        <label class="sb-label">Nombre</label>
+        <input class="sb-input" [(ngModel)]="productoEditando.nombre" placeholder="Nombre del producto">
+      </div>
+      <div>
+        <label class="sb-label">Precio (S/)</label>
+        <input class="sb-input" [(ngModel)]="productoEditando.precio" type="number" placeholder="Precio">
+      </div>
+      <div>
+        <label class="sb-label">Descripción</label>
+        <textarea class="sb-input" [(ngModel)]="productoEditando.descripcion"
+          placeholder="Descripción" style="resize:vertical;min-height:80px"></textarea>
+      </div>
+      <div>
+        <label class="sb-label">Stock</label>
+        <input class="sb-input" [(ngModel)]="productoEditando.stock" type="number" placeholder="Stock">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button class="btn-primary" style="flex:1;justify-content:center" (click)="guardarEdicion()">
+        Guardar cambios
+      </button>
+      <button (click)="mostrarModalEdicion = false"
+        style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);
+               background:var(--white);cursor:pointer;font-weight:700;font-family:inherit">
+        Cancelar
+      </button>
     </div>
   </div>
 </div>
@@ -169,7 +217,7 @@
         <div style="font-size:11px;color:#64748b">Chat web con IA</div>
       </div>
     </a>
-    <a href="https://api.whatsapp.com/send?phone=51999000001" target="_blank"
+    <a [href]="whatsappUrl" target="_blank"
        style="display:flex;align-items:center;gap:12px;padding:14px 20px;
               text-decoration:none;cursor:pointer;background:#fff">
       <span style="font-size:24px">📱</span>

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -29,7 +29,7 @@ interface Mensaje { tipo: 'bot'|'you'; texto: string; fuentes?: any[]; }
   templateUrl: './chat.html',
   styleUrl: './chat.css'
 })
-export class ChatComponent implements AfterViewChecked {
+export class ChatComponent implements OnInit, AfterViewChecked {
   @ViewChild('chatBox') chatBox!: ElementRef;
 
   mensajes: Mensaje[] = [
@@ -52,6 +52,18 @@ export class ChatComponent implements AfterViewChecked {
     private router: Router,
     public auth: AuthService
   ) {}
+
+  ngOnInit() {
+    const raw = sessionStorage.getItem('chatContexto');
+    if (raw) {
+      sessionStorage.removeItem('chatContexto');
+      const ctx = JSON.parse(raw);
+      setTimeout(() => {
+        this.inputText = ctx.mensajeInicial;
+        this.enviar();
+      }, 400);
+    }
+  }
 
   ngAfterViewChecked() {
     if (this.chatBox?.nativeElement) {

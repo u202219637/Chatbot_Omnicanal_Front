@@ -1,39 +1,138 @@
 <app-navbar></app-navbar>
 
-<div class="page">
-  <div class="page-body">
-    <div class="section-title">Escalaciones</div>
-    <div class="section-sub">Conversaciones que requieren atención de un asesor</div>
+<div class="esc-page">
 
-    <div class="loading-spinner" *ngIf="loading">⏳ Cargando escalaciones...</div>
-
-    <div class="empty-state" *ngIf="!loading && escalaciones.length === 0">
-      <div class="empty-icon">🎧</div>
-      No hay escalaciones registradas.
+  <div class="esc-header">
+    <div>
+      <h1 class="esc-titulo">Escalaciones</h1>
+      <p class="esc-subtitulo">Administra y da seguimiento a las consultas escaladas desde el chatbot.</p>
     </div>
+    <div class="esc-acciones">
+      <button class="btn-exportar">↓ Exportar</button>
+      <button class="btn-actualizar" (click)="cargar()">🔄 Actualizar</button>
+    </div>
+  </div>
 
-    <div *ngIf="!loading && escalaciones.length > 0"
-         style="background:var(--white);border:1px solid var(--line);border-radius:18px;overflow:hidden">
-      <table class="sb-table" style="width:100%">
+  <!-- FILTROS -->
+  <div class="esc-filtros">
+    <select class="filtro-select" [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+      <option value="">Estado: Todos</option>
+      <option value="PENDIENTE">Pendiente</option>
+      <option value="EN_REVISION">En revisión</option>
+      <option value="EN_ESPERA">En espera</option>
+      <option value="RESUELTO">Resuelto</option>
+    </select>
+    <select class="filtro-select" [(ngModel)]="filtroPrioridad" (ngModelChange)="aplicarFiltros()">
+      <option value="">Prioridad: Todos</option>
+      <option value="ALTA">Alta</option>
+      <option value="MEDIA">Media</option>
+      <option value="BAJA">Baja</option>
+    </select>
+    <input class="filtro-buscar" type="text" placeholder="Buscar por cliente, tema o ID..."
+           [(ngModel)]="filtroBuscar" (ngModelChange)="aplicarFiltros()">
+  </div>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <div class="esc-layout">
+
+    <!-- TABLA -->
+    <div class="esc-tabla-card">
+      <div *ngIf="cargando" class="esc-loading">Cargando escalaciones...</div>
+
+      <table class="esc-tabla" *ngIf="!cargando">
         <thead>
           <tr>
-            <th>Cliente</th><th>Estado</th><th>Motivo</th><th>Fecha</th>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Tema</th>
+            <th>Prioridad</th>
+            <th>Asignado a</th>
+            <th>Estado</th>
+            <th>Última actualización</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let e of escalaciones">
-            <td style="font-weight:700">{{ e.clienteNombre }}</td>
+          <tr *ngFor="let e of escalacionesFiltradas" (click)="seleccionar(e)" class="esc-fila">
+            <td class="esc-id">{{ e.id }}</td>
             <td>
-              <span [class]="e.estado === 'PENDIENTE' ? 'badge badge-orange' :
-                             e.estado === 'RESUELTA'  ? 'badge badge-green'  : 'badge badge-blue'">
-                {{ e.estado }}
+              <div class="persona-cell">
+                <div class="persona-avatar">{{ e.clienteNombre.substring(0,2).toUpperCase() }}</div>
+                {{ e.clienteNombre }}
+              </div>
+            </td>
+            <td>
+              <div class="tema-nombre">{{ e.tema }}</div>
+              <div class="tema-sub">{{ e.descripcion }}</div>
+            </td>
+            <td>
+              <span class="prioridad-badge prioridad-{{ e.prioridad.toLowerCase() }}">
+                {{ e.prioridad }}
               </span>
             </td>
-            <td style="color:var(--muted)">{{ e.motivo }}</td>
-            <td style="color:var(--muted)">{{ e.fechaCreacion }}</td>
+            <td>
+              <div class="persona-cell">
+                <div class="persona-avatar persona-avatar--gray">{{ e.asesorNombre.substring(0,2).toUpperCase() }}</div>
+                {{ e.asesorNombre }}
+              </div>
+            </td>
+            <td>
+              <span class="estado-badge estado-{{ e.estado.toLowerCase() }}">
+                {{ e.estado.replace('_', ' ') }}
+              </span>
+            </td>
+            <td class="fecha-cell">{{ e.ultimaActualizacion }}</td>
           </tr>
         </tbody>
       </table>
+
+      <div class="esc-paginacion">
+        Mostrando {{ escalacionesFiltradas.length }} de {{ escalaciones.length }} resultados
+      </div>
     </div>
+
+    <!-- RESUMEN LATERAL -->
+    <aside class="esc-resumen">
+      <h3 class="resumen-titulo">Resumen</h3>
+      <div class="resumen-grid">
+        <div class="resumen-stat">
+          <div class="resumen-num">{{ escalaciones.length }}</div>
+          <div class="resumen-label">Total</div>
+        </div>
+        <div class="resumen-stat">
+          <div class="resumen-num azul">{{ countEstado('EN_REVISION') }}</div>
+          <div class="resumen-label">En revisión</div>
+        </div>
+        <div class="resumen-stat">
+          <div class="resumen-num naranja">{{ countEstado('PENDIENTE') }}</div>
+          <div class="resumen-label">Pendientes</div>
+        </div>
+        <div class="resumen-stat">
+          <div class="resumen-num verde">{{ countEstado('RESUELTO') }}</div>
+          <div class="resumen-label">Resueltas</div>
+        </div>
+      </div>
+
+      <h3 class="resumen-titulo" style="margin-top:20px">Por prioridad</h3>
+      <div class="prioridad-bars">
+        <div class="pbar-item" *ngFor="let p of ['ALTA','MEDIA','BAJA']">
+          <div class="pbar-label">
+            <span>{{ p }}</span>
+            <span>{{ countPrioridad(p) }}</span>
+          </div>
+          <div class="pbar-bg">
+            <div class="pbar-fill pbar-{{ p.toLowerCase() }}"
+                 [style.width.%]="escalaciones.length ? (countPrioridad(p) / escalaciones.length) * 100 : 0">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tiempo-card">
+        <div class="tiempo-label">Tiempo promedio de respuesta</div>
+        <div class="tiempo-valor">2h 45m</div>
+        <div class="tiempo-var">↓ -12% vs. ayer</div>
+      </div>
+    </aside>
+
   </div>
 </div>

@@ -16,6 +16,7 @@ export class LoginComponent {
   password = '';
   loading  = false;
   error    = '';
+  mostrarRecuperar = false;
 
   features = [
     '💻 Catálogo de 500+ productos',
@@ -35,7 +36,8 @@ export class LoginComponent {
       next: (res) => {
         this.loading = false;
         if (res.rol === 'ADMINISTRADOR') this.router.navigate(['/dashboard']);
-        else this.router.navigate(['/catalogo']);
+        else if (res.rol === 'ASESOR')   this.router.navigate(['/escalaciones']);
+        else                             this.router.navigate(['/catalogo']);
       },
       error: () => {
         this.loading = false;

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpClient, HttpBackend } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { NavbarComponent } from '../shared/navbar/navbar';
 import { environment } from '../../../environments/environment';
@@ -15,29 +16,64 @@ import { environment } from '../../../environments/environment';
   styleUrl: './catalogo.css'
 })
 export class CatalogoComponent implements OnInit {
-  productos: any[]   = [];
-  filtrados: any[]   = [];
-  categorias: any[]  = [];
-  marcas: any[]      = [];
+  productos: any[]  = [];
+  filtrados: any[]  = [];
+  categorias: any[] = [];
+  marcas: any[]     = [];
   loading = true;
   widgetOpen = false;
 
-  q            = '';
-  categoriasSel: number[] = [];
-  marcasSel:     number[] = [];
-  precioMax    = 10000;
-  orden        = 'relevancia';
+  q                        = '';
+  categoriaSeleccionada: string | null = null;
+  marcaSeleccionada:     string | null = null;
+  precioMin: number | null = null;
+  precioMax: number | null = null;
+  orden = 'recomendados';
+
+  esAdmin = localStorage.getItem('rol') === 'ADMINISTRADOR';
+  productoEditando: any = null;
+  mostrarModalEdicion   = false;
+  whatsappUrl = `https://api.whatsapp.com/send?phone=${environment.whatsappNumber}`;
+
+  private httpPublic: HttpClient;
 
   constructor(
     private http: HttpClient,
+    private backend: HttpBackend,
+    private route: ActivatedRoute,
     private router: Router,
-    public  auth:  AuthService
-  ) {}
+    public  auth: AuthService
+  ) {
+    this.httpPublic = new HttpClient(this.backend);
+  }
 
   ngOnInit() {
-    this.http.get<any[]>(`${environment.apiUrl}/categorias`).subscribe(d => this.categorias = d);
-    this.http.get<any[]>(`${environment.apiUrl}/marcas`).subscribe(d => this.marcas = d);
-    this.cargar();
+    this.loading   = true;
+    this.filtrados = [];
+    this.productos = [];
+
+    forkJoin({
+      categorias: this.httpPublic.get<any[]>(`${environment.apiUrl}/categorias`),
+      marcas:     this.httpPublic.get<any[]>(`${environment.apiUrl}/marcas`),
+      productos:  this.http.get<any[]>(`${environment.apiUrl}/productos`)
+    }).subscribe({
+      next: ({ categorias, marcas, productos }) => {
+        this.categorias = categorias;
+        this.marcas     = marcas;
+        this.productos  = productos;
+        this.sincronizarQueryParams();
+        this.loading = false;
+        this.aplicarFiltros();
+      },
+      error: () => { this.loading = false; }
+    });
+
+    this.route.queryParams.subscribe(() => {
+      if (this.productos.length > 0) {
+        this.sincronizarQueryParams();
+        this.aplicarFiltros();
+      }
+    });
   }
 
   cargar() {
@@ -45,55 +81,100 @@ export class CatalogoComponent implements OnInit {
     const q = this.q ? `?q=${encodeURIComponent(this.q)}` : '';
     this.http.get<any[]>(`${environment.apiUrl}/productos${q}`).subscribe({
       next: d => { this.productos = d; this.aplicarFiltros(); this.loading = false; },
-      error: ()=> this.loading = false
+      error: () => { this.loading = false; }
     });
   }
 
   aplicarFiltros() {
     let lista = [...this.productos];
-    if (this.categoriasSel.length)
-      lista = lista.filter(p => this.categoriasSel.includes(p.categoriaId || this.getCatId(p.categoriaNombre)));
-    if (this.marcasSel.length)
-      lista = lista.filter(p => this.marcasSel.includes(p.marcaId || this.getMarcaId(p.marcaNombre)));
-    lista = lista.filter(p => p.precio <= this.precioMax);
-    if (this.orden === 'precio_asc')  lista.sort((a,b) => a.precio - b.precio);
-    if (this.orden === 'precio_desc') lista.sort((a,b) => b.precio - a.precio);
-    if (this.orden === 'nombre')      lista.sort((a,b) => a.nombre.localeCompare(b.nombre));
+
+    if (this.categoriaSeleccionada) {
+      const cat = this.categoriaSeleccionada;
+      lista = lista.filter(p => this.normalizar(p.categoriaNombre) === this.normalizar(cat));
+    }
+
+    if (this.marcaSeleccionada) {
+      const marca = this.marcaSeleccionada;
+      lista = lista.filter(p => this.normalizar(p.marcaNombre) === this.normalizar(marca));
+    }
+
+    if (this.precioMin !== null) lista = lista.filter(p => p.precio >= this.precioMin!);
+    if (this.precioMax !== null) lista = lista.filter(p => p.precio <= this.precioMax!);
+
+    if (this.q?.trim()) {
+      const t = this.normalizar(this.q);
+      lista = lista.filter(p =>
+        this.normalizar(p.nombre       || '').includes(t) ||
+        this.normalizar(p.descripcion  || '').includes(t) ||
+        this.normalizar(p.marcaNombre  || '').includes(t)
+      );
+    }
+
+    switch (this.orden) {
+      case 'precio_asc':  lista.sort((a, b) => a.precio - b.precio); break;
+      case 'precio_desc': lista.sort((a, b) => b.precio - a.precio); break;
+      case 'nombre':      lista.sort((a, b) => a.nombre.localeCompare(b.nombre)); break;
+    }
+
     this.filtrados = lista;
   }
 
-  toggleCategoria(id: number) {
-    const i = this.categoriasSel.indexOf(id);
-    i >= 0 ? this.categoriasSel.splice(i,1) : this.categoriasSel.push(id);
-    this.aplicarFiltros();
-  }
-
-  toggleMarca(id: number) {
-    const i = this.marcasSel.indexOf(id);
-    i >= 0 ? this.marcasSel.splice(i,1) : this.marcasSel.push(id);
+  toggleCategoria(nombre: string) {
+    this.categoriaSeleccionada = this.categoriaSeleccionada === nombre ? null : nombre;
     this.aplicarFiltros();
   }
 
   limpiar() {
-    this.q=''; this.categoriasSel=[]; this.marcasSel=[];
-    this.precioMax=10000; this.orden='relevancia'; this.cargar();
+    this.q                     = '';
+    this.categoriaSeleccionada = null;
+    this.marcaSeleccionada     = null;
+    this.precioMin             = null;
+    this.precioMax             = null;
+    this.orden                 = 'recomendados';
+    this.router.navigate(['/catalogo']);
+    this.http.get<any[]>(`${environment.apiUrl}/productos`).subscribe({
+      next: prods => { this.productos = prods; this.aplicarFiltros(); }
+    });
+  }
+
+  editarProducto(producto: any) {
+    this.productoEditando    = { ...producto };
+    this.mostrarModalEdicion = true;
+  }
+
+  guardarEdicion() {
+    const id = this.productoEditando.id;
+    this.http.put(`${environment.apiUrl}/productos/${id}`, this.productoEditando).subscribe({
+      next: () => { this.mostrarModalEdicion = false; this.cargar(); },
+      error: (err) => console.error('Error al actualizar producto', err)
+    });
   }
 
   verDetalle(id: number) { this.router.navigate(['/detalle', id]); }
 
   countCat(nombre: string)  { return this.productos.filter(p => p.categoriaNombre === nombre).length; }
   countMarca(nombre: string){ return this.productos.filter(p => p.marcaNombre === nombre).length; }
-  getCatId(nombre: string)  { return this.categorias.find(c => c.nombre === nombre)?.id; }
-  getMarcaId(nombre: string){ return this.marcas.find(m => m.nombre === nombre)?.id; }
+
+  private sincronizarQueryParams() {
+    const params = this.route.snapshot.queryParamMap;
+    const cat    = params.get('categoria');
+    const marca  = params.get('marca');
+    this.categoriaSeleccionada = cat   || null;
+    this.marcaSeleccionada     = marca || null;
+  }
+
+  private normalizar(v = ''): string {
+    return v.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  }
 
   emoji(cat: string): string {
-    const m: any = { Laptops:'💻', Periféricos:'🖱️', Monitores:'🖥️', Almacenamiento:'💾', Accesorios:'🎒' };
+    const m: any = { Laptops: '💻', 'Periféricos': '🖱️', Monitores: '🖥️', Almacenamiento: '💾', Accesorios: '🎒' };
     return m[cat] || '📦';
   }
 
   formatPrice(p: number): string {
     if (!p) return 'S/ 0.00';
-    return 'S/ ' + p.toLocaleString('es-PE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+    return 'S/ ' + p.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   agregarCarrito(p: any) {

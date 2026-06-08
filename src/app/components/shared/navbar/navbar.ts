@@ -100,8 +100,8 @@ import { AuthService } from '../../../services/auth.service';
     <!-- CHAT IA -->
     <a routerLink="/chat" routerLinkActive="nav-active" class="nav-item">Chat IA</a>
 
-    <!-- HISTORIAL -->
-    <a routerLink="/historial" routerLinkActive="nav-active" class="nav-item">Historial</a>
+    <!-- HISTORIAL (solo CLIENTE) -->
+    <a *ngIf="!auth.isAdmin()" routerLink="/historial" routerLinkActive="nav-active" class="nav-item">Historial</a>
 
     <!-- ADMIN links -->
     <ng-container *ngIf="auth.isAdmin()">
@@ -149,7 +149,13 @@ import { AuthService } from '../../../services/auth.service';
                   letter-spacing:.06em">
         {{ auth.getRol() }}
       </div>
-      <a routerLink="/historial" (click)="menuOpen=false"
+      <a routerLink="/perfil" (click)="menuOpen=false"
+         style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+                border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);
+                cursor:pointer;text-decoration:none">
+        Mi perfil
+      </a>
+      <a *ngIf="!auth.isAdmin()" routerLink="/historial" (click)="menuOpen=false"
          style="display:flex;align-items:center;gap:10px;padding:10px 14px;
                 border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);
                 cursor:pointer;text-decoration:none">

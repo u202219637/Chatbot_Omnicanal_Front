@@ -18,7 +18,8 @@ export const routes: Routes = [
   {
     path: 'catalogo',
     loadComponent: () => import('./components/catalogo/catalogo').then(m => m.CatalogoComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'detalle/:id',
@@ -53,6 +54,11 @@ export const routes: Routes = [
   {
     path: 'carrito',
     loadComponent: () => import('./components/carrito/carrito').then(m => m.CarritoComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'perfil',
+    loadComponent: () => import('./components/perfil/perfil').then(m => m.PerfilComponent),
     canActivate: [authGuard]
   },
   { path: '**', redirectTo: 'landing' }

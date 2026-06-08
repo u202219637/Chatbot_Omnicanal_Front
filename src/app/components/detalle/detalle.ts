@@ -80,11 +80,21 @@ export class DetalleComponent implements OnInit {
     }
   }
 
+  preguntarAShadowIA() {
+    sessionStorage.setItem('chatContexto', JSON.stringify({
+      productoId:      this.producto.id,
+      productoNombre:  this.producto.nombre,
+      productoPrecio:  this.producto.precio,
+      mensajeInicial:  `Hola, estoy interesado en el ${this.producto.nombre} que cuesta S/ ${this.formatPrice(this.producto.precio)}. ¿Puedes darme más información?`
+    }));
+    this.router.navigate(['/chat']);
+  }
+
   consultarWhatsApp() {
     const msg = encodeURIComponent(
       `Hola ShadowByte, me interesa el *${this.producto.nombre}* (S/ ${this.formatPrice(this.producto.precio)}). ¿Tienen disponibilidad?`
     );
-    window.open(`https://api.whatsapp.com/send?phone=51999000001&text=${msg}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${environment.whatsappNumber}&text=${msg}`, '_blank');
   }
 
   enviarMiniMensaje(textoOverride?: string) {
