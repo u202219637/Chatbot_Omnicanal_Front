@@ -1,0 +1,76 @@
+<app-navbar></app-navbar>
+
+<div class="perfil-page">
+
+  <div class="perfil-header">
+    <span class="perfil-icon">👤</span>
+    <div>
+      <h1>Mi Perfil</h1>
+      <p>Edita tu información personal</p>
+    </div>
+  </div>
+
+  <!-- Estado: cargando -->
+  <div *ngIf="cargando" class="perfil-card loading">
+    <div class="loading-spinner">⏳ Cargando tus datos...</div>
+  </div>
+
+  <!-- Formulario -->
+  <div *ngIf="!cargando" class="perfil-card">
+
+    <!-- Avatar -->
+    <div class="perfil-avatar-row">
+      <div class="avatar-circle">
+        {{ (nombres || username || '?').substring(0,2).toUpperCase() }}
+      </div>
+      <div>
+        <div class="avatar-nombre">{{ nombres || username }}</div>
+        <div class="avatar-username">&#64;{{ username }}</div>
+      </div>
+    </div>
+
+    <hr class="perfil-divider">
+
+    <!-- Alerta error -->
+    <div *ngIf="error" class="alerta alerta-error">⚠️ {{ error }}</div>
+
+    <!-- Alerta éxito -->
+    <div *ngIf="exito" class="alerta alerta-exito">✅ Cambios guardados correctamente</div>
+
+    <!-- Campos -->
+    <div class="campo-grupo">
+      <label class="sb-label">Nombre</label>
+      <input class="sb-input" type="text" [(ngModel)]="nombres" placeholder="Tu nombre">
+    </div>
+
+    <div class="campo-grupo">
+      <label class="sb-label">Apellidos</label>
+      <input class="sb-input" type="text" [(ngModel)]="apellidos" placeholder="Tus apellidos">
+    </div>
+
+    <div class="campo-grupo">
+      <label class="sb-label">Teléfono</label>
+      <input class="sb-input" type="tel" [(ngModel)]="telefono" placeholder="Tu teléfono">
+    </div>
+
+    <div class="campo-grupo">
+      <label class="sb-label">Email</label>
+      <input class="sb-input" type="email" [(ngModel)]="correo" placeholder="Tu email">
+    </div>
+
+    <div class="campo-grupo">
+      <label class="sb-label">Usuario</label>
+      <div style="position:relative">
+        <input class="sb-input" type="text" [value]="username" readonly
+               style="background:var(--soft);color:var(--muted);cursor:not-allowed">
+        <span class="readonly-hint">No se puede modificar</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px;margin-top:8px"
+            (click)="guardarCambios()" [disabled]="guardando">
+      {{ guardando ? '⏳ Guardando...' : 'Guardar cambios' }}
+    </button>
+  </div>
+
+</div>

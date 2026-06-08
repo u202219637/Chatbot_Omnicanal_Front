@@ -1,41 +1,184 @@
 <app-navbar></app-navbar>
 
-<div class="page">
-  <div class="page-body">
-    <div class="section-title">Dashboard</div>
-    <div class="section-sub">Métricas del sistema en tiempo real</div>
-    <div class="loading-spinner" *ngIf="loading">⏳ Cargando KPIs...</div>
-    <div *ngIf="!loading" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px">
-      <div class="stat-card">
-        <div class="stat-icon">💬</div>
-        <div class="stat-value">{{ kpis?.totalConversaciones || 0 }}</div>
-        <div class="stat-label">Conversaciones totales</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">✓</div>
-        <div class="stat-value">{{ (kpis?.tasaResolucionAutomatica || 0) | number:'1.0-1' }}%</div>
-        <div class="stat-label">Tasa de resolución</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">⏱️</div>
-        <div class="stat-value">{{ kpis?.tiempoPromedioRespuesta || '—' }}</div>
-        <div class="stat-label">Tiempo promedio</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">⭐</div>
-        <div class="stat-value">{{ (kpis?.satisfaccionPromedio || 0) | number:'1.0-1' }}/5</div>
-        <div class="stat-label">Satisfacción promedio</div>
-      </div>
+<div class="dash-page">
+
+  <!-- HEADER -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-titulo">Dashboard</h1>
+      <p class="dash-subtitulo">Resumen operativo y métricas clave del asistente Shadow IA</p>
     </div>
-    <div *ngIf="!loading && intenciones.length > 0" class="sb-card" style="margin-bottom:20px">
-      <div style="font-size:16px;font-weight:800;margin-bottom:16px">Top intenciones detectadas</div>
-      <div *ngFor="let i of intenciones.slice(0,5)" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:700;flex:1">{{ i.intencion }}</div>
-        <div style="flex:2;height:8px;background:var(--line);border-radius:999px;overflow:hidden">
-          <div [style.width.%]="i.porcentaje" style="height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:999px"></div>
-        </div>
-        <div style="font-size:13px;font-weight:800;color:var(--p);width:50px;text-align:right">{{ i.frecuencia }}</div>
-      </div>
+    <div class="dash-header-acciones">
+      <div class="rango-badge">📅 {{ rangoFechas }}</div>
+      <button class="btn-exportar">↓ Exportar</button>
     </div>
   </div>
+
+  <!-- LOADING -->
+  <div *ngIf="cargando" class="dash-loading">
+    <div class="spinner"></div>
+    <span>Cargando métricas...</span>
+  </div>
+
+  <ng-container *ngIf="!cargando && kpis">
+
+    <!-- KPIs FILA -->
+    <div class="kpis-grid">
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icono">💬</div>
+          <span [class]="getVariacionClass(kpis.variacionConversaciones)" class="kpi-var">
+            {{ getVariacionIcon(kpis.variacionConversaciones) }}
+            {{ kpis.variacionConversaciones | number:'1.1-1' }}% vs. sem. ant.
+          </span>
+        </div>
+        <div class="kpi-valor">{{ kpis.totalConversaciones | number }}</div>
+        <div class="kpi-label">Conversaciones totales</div>
+        <div class="kpi-sparkline"></div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icono">👥</div>
+          <span class="var-positiva kpi-var">↑ 12.3% vs. sem. ant.</span>
+        </div>
+        <div class="kpi-valor">1,276</div>
+        <div class="kpi-label">Usuarios únicos</div>
+        <div class="kpi-sparkline kpi-sparkline--green"></div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icono">✅</div>
+          <span [class]="getVariacionClass(kpis.variacionResolucion)" class="kpi-var">
+            {{ getVariacionIcon(kpis.variacionResolucion) }}
+            {{ kpis.variacionResolucion | number:'1.1-1' }}% vs. sem. ant.
+          </span>
+        </div>
+        <div class="kpi-valor">{{ kpis.tasaResolucion }}%</div>
+        <div class="kpi-label">Tasa de resolución</div>
+        <div class="kpi-sparkline kpi-sparkline--green"></div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icono">⏱️</div>
+          <span [class]="getVariacionClass(-(kpis.variacionTiempo))" class="kpi-var">
+            {{ getVariacionIcon(kpis.variacionTiempo) }}
+            {{ kpis.variacionTiempo | number:'1.1-1' }}% vs. sem. ant.
+          </span>
+        </div>
+        <div class="kpi-valor">{{ formatTiempo(kpis.tiempoPromedioMs) }}</div>
+        <div class="kpi-label">Tiempo prom. respuesta</div>
+        <div class="kpi-sparkline kpi-sparkline--orange"></div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <div class="kpi-icono">⭐</div>
+          <span [class]="getVariacionClass(kpis.variacionSatisfaccion)" class="kpi-var">
+            {{ getVariacionIcon(kpis.variacionSatisfaccion) }}
+            {{ kpis.variacionSatisfaccion | number:'1.1-1' }}% vs. sem. ant.
+          </span>
+        </div>
+        <div class="kpi-valor">{{ kpis.satisfaccionPromedio | number:'1.1-1' }} / 5</div>
+        <div class="kpi-label">Satisfacción promedio</div>
+        <div class="kpi-sparkline kpi-sparkline--green"></div>
+      </div>
+
+    </div>
+
+    <!-- FILA 2 -->
+    <div class="dash-fila2">
+
+      <!-- Conversaciones por día (barras) -->
+      <div class="dash-card dash-card--grande">
+        <h3 class="card-titulo">Conversaciones por día</h3>
+        <div class="barras-contenedor">
+          <div class="barra-grupo" *ngFor="let d of diasSemana">
+            <div class="barra" [style.height.px]="(d / maxDia) * 120"></div>
+          </div>
+        </div>
+        <div class="barras-labels">
+          <span *ngFor="let d of ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']">{{ d }}</span>
+        </div>
+      </div>
+
+      <!-- Consultas por categoría -->
+      <div class="dash-card">
+        <h3 class="card-titulo">Consultas por categoría</h3>
+        <div class="pie-contenedor">
+          <div class="pie-visual"></div>
+          <div class="pie-leyenda">
+            <div class="leyenda-item" *ngFor="let i of intencionesData">
+              <span class="leyenda-dot" [style.background]="i.color"></span>
+              <span class="leyenda-texto">{{ i.nombre }} {{ i.porcentaje }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="dash-card">
+        <h3 class="card-titulo">Actividad reciente</h3>
+        <div class="actividad-lista">
+          <div class="actividad-item" *ngFor="let a of actividadReciente">
+            <div class="actividad-dot" [style.background]="a.color"></div>
+            <div class="actividad-info">
+              <div class="actividad-texto">{{ a.texto }}</div>
+              <div class="actividad-detalle">{{ a.detalle }}</div>
+            </div>
+            <div class="actividad-badge" [style.color]="a.color">{{ a.estado }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FILA 3 -->
+    <div class="dash-fila3">
+
+      <div class="dash-card">
+        <h3 class="card-titulo">Rendimiento del asistente</h3>
+        <div class="rendimiento-grid">
+          <div class="rend-item">
+            <div class="rend-icono">✅</div>
+            <div class="rend-valor">{{ kpis.tasaResolucion }}%</div>
+            <div class="rend-label">Resolución automática</div>
+          </div>
+          <div class="rend-item">
+            <div class="rend-icono">💬</div>
+            <div class="rend-valor">3.2</div>
+            <div class="rend-label">Msgs / conversación</div>
+          </div>
+          <div class="rend-item">
+            <div class="rend-icono">⏱️</div>
+            <div class="rend-valor">{{ formatTiempo(kpis.tiempoPromedioMs) }}</div>
+            <div class="rend-label">Tiempo de respuesta</div>
+          </div>
+          <div class="rend-item">
+            <div class="rend-icono">📊</div>
+            <div class="rend-valor">7.6%</div>
+            <div class="rend-label">Desvío a humano</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <h3 class="card-titulo">Estado del sistema</h3>
+        <div class="sistema-lista">
+          <div class="sistema-item" *ngFor="let s of estadoSistema">
+            <span class="sistema-nombre">{{ s.nombre }}</span>
+            <span class="sistema-estado" [class.ok]="s.ok" [class.warn]="!s.ok">
+              <span class="estado-dot"></span>
+              {{ s.estado }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
 </div>

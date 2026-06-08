@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { NavbarComponent } from '../shared/navbar/navbar';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-landing',
@@ -29,11 +30,13 @@ export class LandingComponent {
   ];
 
   widgetOpen = false;
+  whatsappUrl = `https://api.whatsapp.com/send?phone=${environment.whatsappNumber}&text=Hola+ShadowByte,+necesito+ayuda`;
 
   constructor(private router: Router, public auth: AuthService) {}
 
   goLogin()    { this.router.navigate(['/login']); }
   goCatalogo() { this.router.navigate(this.auth.isLoggedIn() ? ['/catalogo'] : ['/login']); }
+  goChat()     { this.router.navigate(this.auth.isLoggedIn() ? ['/chat'] : ['/login']); }
 
   toggleWidget() {
     this.widgetOpen = !this.widgetOpen;

@@ -1,0 +1,125 @@
+.filter-item {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  margin: 2px -6px;
+  padding: 7px 6px;
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.filter-item:hover {
+  background: rgba(79, 70, 229, .045);
+}
+
+.filter-item-selected {
+  background: rgba(79, 70, 229, .075);
+  border-color: rgba(79, 70, 229, .16);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, .08);
+}
+
+/* Botones de categoría (radio-style) */
+.btn-categoria {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 7px 8px;
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+  text-align: left;
+  transition: background .15s, border-color .15s;
+}
+
+.btn-categoria:hover {
+  background: rgba(79, 70, 229, .05);
+}
+
+.btn-categoria.activo {
+  background: rgba(79, 70, 229, .09);
+  border-color: rgba(79, 70, 229, .25);
+  color: var(--p);
+  font-weight: 700;
+}
+
+/* Dropdown de marcas */
+.filtro-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+  background: white;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: var(--p2);
+  box-shadow: 0 0 0 3px var(--p3);
+}
+
+/* Inputs de precio MIN/MAX */
+.precio-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.precio-campo {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  flex: 1;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.precio-campo:focus-within {
+  border-color: var(--p2);
+  box-shadow: 0 0 0 3px var(--p3);
+}
+
+.precio-prefijo {
+  padding: 8px 6px 8px 10px;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--soft);
+  border-right: 1.5px solid var(--line);
+  white-space: nowrap;
+}
+
+.precio-input {
+  border: none;
+  outline: none;
+  padding: 8px;
+  font-size: 13px;
+  width: 100%;
+  color: var(--ink);
+  background: white;
+  font-family: inherit;
+}
+
+.precio-input::-webkit-outer-spin-button,
+.precio-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.precio-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.precio-separador,
+.precio-sep {
+  color: var(--muted);
+  font-size: 14px;
+  flex-shrink: 0;
+}

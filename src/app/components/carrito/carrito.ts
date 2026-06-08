@@ -14,6 +14,8 @@ export class CarritoComponent implements OnInit, OnDestroy {
   items: any[] = [];
   private listener = () => this.cargar();
 
+  constructor(private router: Router) {}
+
   ngOnInit()    { this.cargar(); window.addEventListener('carritoUpdated', this.listener); }
   ngOnDestroy() { window.removeEventListener('carritoUpdated', this.listener); }
 
@@ -52,6 +54,18 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
   formatPrice(p: number): string {
     return p.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  procederAlPago() {
+    if (this.items.length === 0) { alert('Tu carrito está vacío'); return; }
+    const confirmar = confirm(
+      `¿Confirmar compra de ${this.count} producto(s)?\nTotal: S/ ${this.formatPrice(this.total)}`
+    );
+    if (confirmar) {
+      localStorage.removeItem('carrito');
+      window.dispatchEvent(new Event('carritoUpdated'));
+      this.router.navigate(['/chat'], { queryParams: { mensaje: 'Quiero confirmar mi compra' } });
+    }
   }
 
   consultarCarritoIA() {
