@@ -28,50 +28,92 @@
 
     <!-- SIDEBAR FILTROS -->
     <aside class="filter-sidebar">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <div style="font-size:15px;font-weight:900">Filtros</div>
-        <button (click)="limpiar()" style="font-size:12px;font-weight:700;color:var(--p);background:none;border:none;cursor:pointer">Limpiar todo</button>
+
+      <!-- Header filtros -->
+      <div class="filter-header">
+        <div class="filter-header-left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          <span>Filtros</span>
+          <span class="filter-badge" *ngIf="categoriaSeleccionada || marcaSeleccionada || precioMin || precioMax">
+            {{ (categoriaSeleccionada ? 1 : 0) + (marcaSeleccionada ? 1 : 0) + (precioMin ? 1 : 0) + (precioMax ? 1 : 0) }}
+          </span>
+        </div>
+        <button class="filter-clear" (click)="limpiar()"
+                *ngIf="categoriaSeleccionada || marcaSeleccionada || precioMin || precioMax">
+          Limpiar todo
+        </button>
       </div>
 
-      <!-- Categorías (radio-style checkbox, single selection) -->
-      <div class="filter-section-title">Categoría</div>
-      <div style="margin-bottom:18px">
-        <label *ngFor="let c of categorias" class="filter-item"
-               [class.filter-item-selected]="categoriaSeleccionada === c.nombre" style="display:flex">
-          <div style="display:flex;align-items:center;gap:8px;flex:1">
-            <input type="checkbox"
-                   [checked]="categoriaSeleccionada === c.nombre"
-                   (change)="toggleCategoria(c.nombre)">
-            <span style="font-size:13px;font-weight:700">{{ c.nombre }}</span>
-          </div>
-          <span class="filter-count">{{ countCat(c.nombre) }}</span>
-        </label>
+      <div class="filter-divider"></div>
+
+      <!-- CATEGORÍA -->
+      <div class="filter-group">
+        <div class="filter-group-title">Categoría</div>
+        <div class="filter-cats">
+          <button class="filter-cat-btn"
+                  *ngFor="let c of categorias"
+                  [class.active]="categoriaSeleccionada === c.nombre"
+                  (click)="toggleCategoria(c.nombre)">
+            <span class="cat-emoji">{{ emoji(c.nombre) }}</span>
+            <span class="cat-nombre">{{ c.nombre }}</span>
+            <span class="cat-count">{{ countCat(c.nombre) }}</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Marca (dropdown select) -->
-      <div class="filter-section-title">Marca</div>
-      <div style="margin-bottom:18px">
-        <select class="filtro-select" [(ngModel)]="marcaSeleccionada" (ngModelChange)="aplicarFiltros()">
+      <div class="filter-divider"></div>
+
+      <!-- MARCA -->
+      <div class="filter-group">
+        <div class="filter-group-title">Marca</div>
+        <select class="filter-select"
+                [(ngModel)]="marcaSeleccionada"
+                (change)="aplicarFiltros()">
           <option [ngValue]="null">Todas las marcas</option>
           <option *ngFor="let m of marcas" [ngValue]="m.nombre">{{ m.nombre }}</option>
         </select>
       </div>
 
-      <!-- Precio (inputs MIN / MAX) -->
-      <div class="filter-section-title">Rango de precio</div>
-      <div class="precio-inputs" style="margin-bottom:8px">
-        <div class="precio-campo">
-          <span class="precio-prefijo">S/</span>
-          <input type="number" class="precio-input" placeholder="Desde"
-                 [(ngModel)]="precioMin" (ngModelChange)="aplicarFiltros()" min="0">
+      <div class="filter-divider"></div>
+
+      <!-- PRECIO -->
+      <div class="filter-group">
+        <div class="filter-group-title">Rango de precio</div>
+        <div class="filter-precio">
+          <div class="precio-field">
+            <span class="precio-label">Desde</span>
+            <div class="precio-input-wrap">
+              <span class="precio-sym">S/</span>
+              <input type="number" class="precio-input"
+                     placeholder="0"
+                     [(ngModel)]="precioMin"
+                     (ngModelChange)="aplicarFiltros()"
+                     min="0">
+            </div>
+          </div>
+          <div class="precio-sep">→</div>
+          <div class="precio-field">
+            <span class="precio-label">Hasta</span>
+            <div class="precio-input-wrap">
+              <span class="precio-sym">S/</span>
+              <input type="number" class="precio-input"
+                     placeholder="∞"
+                     [(ngModel)]="precioMax"
+                     (ngModelChange)="aplicarFiltros()"
+                     min="0">
+            </div>
+          </div>
         </div>
-        <span class="precio-separador">—</span>
-        <div class="precio-campo">
-          <span class="precio-prefijo">S/</span>
-          <input type="number" class="precio-input" placeholder="Hasta"
-                 [(ngModel)]="precioMax" (ngModelChange)="aplicarFiltros()" min="0">
+        <!-- Chips rápidos de precio -->
+        <div class="precio-chips">
+          <button class="precio-chip" (click)="precioMin=null; precioMax=500; aplicarFiltros()">Hasta S/500</button>
+          <button class="precio-chip" (click)="precioMin=500; precioMax=2000; aplicarFiltros()">S/500–2K</button>
+          <button class="precio-chip" (click)="precioMin=2000; precioMax=null; aplicarFiltros()">+S/2000</button>
         </div>
       </div>
+
     </aside>
 
     <!-- PRODUCTOS -->

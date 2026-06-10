@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpBackend } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { NavbarComponent } from '../shared/navbar/navbar';
 import { environment } from '../../../environments/environment';
@@ -47,39 +46,61 @@ export class CatalogoComponent implements OnInit {
     this.httpPublic = new HttpClient(this.backend);
   }
 
-  ngOnInit() {
-    this.loading   = true;
-    this.filtrados = [];
-    this.productos = [];
+ ngOnInit() {
+  this.loading   = true;
+  this.filtrados = [];
+  this.productos = [];
 
-    forkJoin({
-      categorias: this.httpPublic.get<any[]>(`${environment.apiUrl}/categorias`),
-      marcas:     this.httpPublic.get<any[]>(`${environment.apiUrl}/marcas`),
-      productos:  this.http.get<any[]>(`${environment.apiUrl}/productos`)
-    }).subscribe({
-      next: ({ categorias, marcas, productos }) => {
-        this.categorias = categorias;
-        this.marcas     = marcas;
-        this.productos  = productos;
-        this.sincronizarQueryParams();
-        this.loading = false;
-        this.aplicarFiltros();
-      },
-      error: () => { this.loading = false; }
-    });
+  // 1. Cargar categorías
+  this.httpPublic.get<any[]>(`${environment.apiUrl}/categorias`).subscribe({
+    next: (cats) => { this.categorias = cats; },
+    error: () => { this.categorias = []; }
+  });
 
-    this.route.queryParams.subscribe(() => {
-      if (this.productos.length > 0) {
-        this.sincronizarQueryParams();
+  // 2. Cargar marcas
+  this.httpPublic.get<any[]>(`${environment.apiUrl}/marcas`).subscribe({
+    next: (marcas) => { this.marcas = marcas; },
+    error: () => { this.marcas = []; }
+  });
+
+  // 3. Cargar productos — al terminar aplica filtros
+  this.httpPublic.get<any[]>(`${environment.apiUrl}/productos`).subscribe({
+    next: (productos) => {
+      this.productos = productos;
+      this.filtrados = [...productos]; // mostrar todos por defecto
+      this.loading   = false;
+
+      // Leer queryParam DESPUÉS de tener productos
+      const cat   = this.route.snapshot.queryParamMap.get('categoria');
+      const marca = this.route.snapshot.queryParamMap.get('marca');
+
+      if (cat || marca) {
+        // Solo filtrar si viene queryParam
+        if (cat)   this.categoriaSeleccionada = cat;
+        if (marca) this.marcaSeleccionada     = marca;
         this.aplicarFiltros();
       }
-    });
-  }
+      // Si no hay queryParams, muestra todos — no llama aplicarFiltros
+    },
+    error: () => { this.loading = false; }
+  });
+
+  // Reaccionar a cambios de queryParams (cuando navegan desde el navbar)
+  this.route.queryParams.subscribe(params => {
+    if (this.productos.length > 0) {
+      const cat   = params['categoria'] || null;
+      const marca = params['marca']     || null;
+      this.categoriaSeleccionada = cat;
+      this.marcaSeleccionada     = marca;
+      this.aplicarFiltros();
+    }
+  });
+}
 
   cargar() {
     this.loading = true;
     const q = this.q ? `?q=${encodeURIComponent(this.q)}` : '';
-    this.http.get<any[]>(`${environment.apiUrl}/productos${q}`).subscribe({
+    this.httpPublic.get<any[]>(`${environment.apiUrl}/productos${q}`).subscribe({
       next: d => { this.productos = d; this.aplicarFiltros(); this.loading = false; },
       error: () => { this.loading = false; }
     });
@@ -104,9 +125,9 @@ export class CatalogoComponent implements OnInit {
     if (this.q?.trim()) {
       const t = this.normalizar(this.q);
       lista = lista.filter(p =>
-        this.normalizar(p.nombre       || '').includes(t) ||
-        this.normalizar(p.descripcion  || '').includes(t) ||
-        this.normalizar(p.marcaNombre  || '').includes(t)
+        this.normalizar(p.nombre      || '').includes(t) ||
+        this.normalizar(p.descripcion || '').includes(t) ||
+        this.normalizar(p.marcaNombre || '').includes(t)
       );
     }
 
@@ -125,14 +146,14 @@ export class CatalogoComponent implements OnInit {
   }
 
   limpiar() {
-    this.q                     = '';
+    this.q                    = '';
     this.categoriaSeleccionada = null;
-    this.marcaSeleccionada     = null;
-    this.precioMin             = null;
-    this.precioMax             = null;
-    this.orden                 = 'recomendados';
+    this.marcaSeleccionada    = null;
+    this.precioMin            = null;
+    this.precioMax            = null;
+    this.orden                = 'recomendados';
     this.router.navigate(['/catalogo']);
-    this.http.get<any[]>(`${environment.apiUrl}/productos`).subscribe({
+    this.httpPublic.get<any[]>(`${environment.apiUrl}/productos`).subscribe({
       next: prods => { this.productos = prods; this.aplicarFiltros(); }
     });
   }
@@ -152,8 +173,8 @@ export class CatalogoComponent implements OnInit {
 
   verDetalle(id: number) { this.router.navigate(['/detalle', id]); }
 
-  countCat(nombre: string)  { return this.productos.filter(p => p.categoriaNombre === nombre).length; }
-  countMarca(nombre: string){ return this.productos.filter(p => p.marcaNombre === nombre).length; }
+  countCat(nombre: string)   { return this.productos.filter(p => p.categoriaNombre === nombre).length; }
+  countMarca(nombre: string) { return this.productos.filter(p => p.marcaNombre === nombre).length; }
 
   private sincronizarQueryParams() {
     const params = this.route.snapshot.queryParamMap;
