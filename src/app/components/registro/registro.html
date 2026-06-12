@@ -28,7 +28,20 @@
 
       <div style="margin-bottom:14px">
         <label class="sb-label">Teléfono</label>
-        <input class="sb-input" [(ngModel)]="form.telefono" placeholder="+51 999 000 001">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="background:#f1f5f9;border:1.5px solid var(--line);border-radius:10px;
+                      padding:0 12px;height:44px;display:flex;align-items:center;
+                      font-weight:700;color:var(--ink);white-space:nowrap;font-size:14px">
+            🇵🇪 +51
+          </span>
+          <input class="sb-input" [(ngModel)]="form.telefono"
+                placeholder="982342259" maxlength="9"
+                style="flex:1"
+                (input)="soloNumeros($event)">
+        </div>
+        <span style="font-size:12px;color:var(--muted);margin-top:4px;display:block">
+          Solo los 9 dígitos, sin el +51
+        </span>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NavbarComponent } from '../shared/navbar/navbar';
 import { environment } from '../../../environments/environment';
+
 
 @Component({
   selector: 'app-rag',
@@ -48,6 +49,26 @@ export class RagComponent implements OnInit {
   }
 
   procesarArchivos(files: FileList) {
-    alert(`${files.length} archivo(s) listos para subir. Conectar a POST /admin/documentos/upload.`);
+    const token = localStorage.getItem('token') || '';
+
+    Array.from(files).forEach(file => {
+      const formData = new FormData();
+      formData.append('archivo', file);
+      formData.append('titulo', file.name.replace(/\.[^/.]+$/, ''));
+
+      this.http.post(`${environment.apiUrl}/admin/documentos/upload`,
+        formData, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).subscribe({
+        next: () => {
+          console.log(`✅ ${file.name} subido`);
+          this.ngOnInit();
+        },
+        error: (err) => {
+          console.error(`❌ Error ${file.name}:`, err);
+          alert(`Error subiendo ${file.name}: ${err.status}`);
+        }
+      });
+    });
   }
 }

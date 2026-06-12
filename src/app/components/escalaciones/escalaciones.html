@@ -4,135 +4,258 @@
 
   <div class="esc-header">
     <div>
-      <h1 class="esc-titulo">Escalaciones</h1>
-      <p class="esc-subtitulo">Administra y da seguimiento a las consultas escaladas desde el chatbot.</p>
+      <h1 class="esc-titulo">Panel de Atención</h1>
+      <p class="esc-subtitulo">Escalaciones y conversaciones omnicanal de todos los clientes.</p>
     </div>
     <div class="esc-acciones">
       <button class="btn-exportar">↓ Exportar</button>
-      <button class="btn-actualizar" (click)="cargar()">🔄 Actualizar</button>
+      <button class="btn-actualizar"
+        (click)="tabActivo==='escalaciones' ? cargarEscalaciones() : cargarConversaciones()">
+        🔄 Actualizar
+      </button>
     </div>
   </div>
 
-  <!-- FILTROS -->
-  <div class="esc-filtros">
-    <select class="filtro-select" [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
-      <option value="">Estado: Todos</option>
-      <option value="PENDIENTE">Pendiente</option>
-      <option value="EN_REVISION">En revisión</option>
-      <option value="EN_ESPERA">En espera</option>
-      <option value="RESUELTO">Resuelto</option>
-    </select>
-    <select class="filtro-select" [(ngModel)]="filtroPrioridad" (ngModelChange)="aplicarFiltros()">
-      <option value="">Prioridad: Todos</option>
-      <option value="ALTA">Alta</option>
-      <option value="MEDIA">Media</option>
-      <option value="BAJA">Baja</option>
-    </select>
-    <input class="filtro-buscar" type="text" placeholder="Buscar por cliente, tema o ID..."
-           [(ngModel)]="filtroBuscar" (ngModelChange)="aplicarFiltros()">
+  <!-- TABS -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--line)">
+    <button (click)="tabActivo='escalaciones'"
+      [style.border-bottom]="tabActivo==='escalaciones' ? '3px solid var(--p)' : 'none'"
+      style="padding:10px 20px;background:none;border:none;font-weight:700;cursor:pointer;color:var(--ink)">
+      Escalaciones
+    </button>
+    <button (click)="tabActivo='conversaciones'"
+      [style.border-bottom]="tabActivo==='conversaciones' ? '3px solid var(--p)' : 'none'"
+      style="padding:10px 20px;background:none;border:none;font-weight:700;cursor:pointer;color:var(--ink)">
+      Conversaciones omnicanal
+    </button>
   </div>
 
-  <!-- LAYOUT PRINCIPAL -->
-  <div class="esc-layout">
+  <!-- TAB ESCALACIONES -->
+  <div *ngIf="tabActivo === 'escalaciones'">
 
-    <!-- TABLA -->
-    <div class="esc-tabla-card">
-      <div *ngIf="cargando" class="esc-loading">Cargando escalaciones...</div>
-
-      <table class="esc-tabla" *ngIf="!cargando">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Tema</th>
-            <th>Prioridad</th>
-            <th>Asignado a</th>
-            <th>Estado</th>
-            <th>Última actualización</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let e of escalacionesFiltradas" (click)="seleccionar(e)" class="esc-fila">
-            <td class="esc-id">{{ e.id }}</td>
-            <td>
-              <div class="persona-cell">
-                <div class="persona-avatar">{{ e.clienteNombre.substring(0,2).toUpperCase() }}</div>
-                {{ e.clienteNombre }}
-              </div>
-            </td>
-            <td>
-              <div class="tema-nombre">{{ e.tema }}</div>
-              <div class="tema-sub">{{ e.descripcion }}</div>
-            </td>
-            <td>
-              <span class="prioridad-badge prioridad-{{ e.prioridad.toLowerCase() }}">
-                {{ e.prioridad }}
-              </span>
-            </td>
-            <td>
-              <div class="persona-cell">
-                <div class="persona-avatar persona-avatar--gray">{{ e.asesorNombre.substring(0,2).toUpperCase() }}</div>
-                {{ e.asesorNombre }}
-              </div>
-            </td>
-            <td>
-              <span class="estado-badge estado-{{ e.estado.toLowerCase() }}">
-                {{ e.estado.replace('_', ' ') }}
-              </span>
-            </td>
-            <td class="fecha-cell">{{ e.ultimaActualizacion }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="esc-paginacion">
-        Mostrando {{ escalacionesFiltradas.length }} de {{ escalaciones.length }} resultados
-      </div>
+    <div class="esc-filtros">
+      <select class="filtro-select" [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+        <option value="">Estado: Todos</option>
+        <option value="PENDIENTE">Pendiente</option>
+        <option value="EN_REVISION">En revisión</option>
+        <option value="EN_ESPERA">En espera</option>
+        <option value="RESUELTO">Resuelto</option>
+      </select>
+      <select class="filtro-select" [(ngModel)]="filtroPrioridad" (ngModelChange)="aplicarFiltros()">
+        <option value="">Prioridad: Todos</option>
+        <option value="ALTA">Alta</option>
+        <option value="MEDIA">Media</option>
+        <option value="BAJA">Baja</option>
+      </select>
+      <input class="filtro-buscar" type="text" placeholder="Buscar por cliente, tema o ID..."
+             [(ngModel)]="filtroBuscar" (ngModelChange)="aplicarFiltros()">
     </div>
 
-    <!-- RESUMEN LATERAL -->
-    <aside class="esc-resumen">
-      <h3 class="resumen-titulo">Resumen</h3>
-      <div class="resumen-grid">
-        <div class="resumen-stat">
-          <div class="resumen-num">{{ escalaciones.length }}</div>
-          <div class="resumen-label">Total</div>
-        </div>
-        <div class="resumen-stat">
-          <div class="resumen-num azul">{{ countEstado('EN_REVISION') }}</div>
-          <div class="resumen-label">En revisión</div>
-        </div>
-        <div class="resumen-stat">
-          <div class="resumen-num naranja">{{ countEstado('PENDIENTE') }}</div>
-          <div class="resumen-label">Pendientes</div>
-        </div>
-        <div class="resumen-stat">
-          <div class="resumen-num verde">{{ countEstado('RESUELTO') }}</div>
-          <div class="resumen-label">Resueltas</div>
+    <div class="esc-layout">
+
+      <div class="esc-tabla-card">
+        <div *ngIf="cargando" class="esc-loading">Cargando escalaciones...</div>
+
+        <table class="esc-tabla" *ngIf="!cargando">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Motivo</th>
+              <th>Prioridad</th>
+              <th>Asignado a</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of escalacionesFiltradas" class="esc-fila">
+              <td class="esc-id">{{ e.id }}</td>
+              <td>
+                <div class="persona-cell">
+                  <div class="persona-avatar">
+                    {{ (e.clienteNombre || 'SC').substring(0,2).toUpperCase() }}
+                  </div>
+                  {{ e.clienteNombre || 'Sin nombre' }}
+                </div>
+              </td>
+              <td>
+                <div class="tema-nombre">{{ e.motivo || '-' }}</div>
+              </td>
+              <td>
+                <span class="prioridad-badge prioridad-{{ (e.prioridad || 'baja').toLowerCase() }}">
+                  {{ e.prioridad || 'BAJA' }}
+                </span>
+              </td>
+              <td>
+                <div class="persona-cell">
+                  <div class="persona-avatar persona-avatar--gray">
+                    {{ (e.asesorNombre || 'NA').substring(0,2).toUpperCase() }}
+                  </div>
+                  {{ e.asesorNombre || 'Sin asignar' }}
+                </div>
+              </td>
+              <td>
+                <span class="estado-badge estado-{{ (e.estado || '').toLowerCase().replace('_','-') }}">
+                  {{ e.estado }}
+                </span>
+              </td>
+              <td class="fecha-cell">{{ e.fechaCreacion | date:'dd/MM HH:mm' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="esc-paginacion">
+          Mostrando {{ escalacionesFiltradas.length }} de {{ escalaciones.length }} resultados
         </div>
       </div>
 
-      <h3 class="resumen-titulo" style="margin-top:20px">Por prioridad</h3>
-      <div class="prioridad-bars">
-        <div class="pbar-item" *ngFor="let p of ['ALTA','MEDIA','BAJA']">
-          <div class="pbar-label">
-            <span>{{ p }}</span>
-            <span>{{ countPrioridad(p) }}</span>
+      <aside class="esc-resumen">
+        <h3 class="resumen-titulo">Resumen</h3>
+        <div class="resumen-grid">
+          <div class="resumen-stat">
+            <div class="resumen-num">{{ escalaciones.length }}</div>
+            <div class="resumen-label">Total</div>
           </div>
-          <div class="pbar-bg">
-            <div class="pbar-fill pbar-{{ p.toLowerCase() }}"
-                 [style.width.%]="escalaciones.length ? (countPrioridad(p) / escalaciones.length) * 100 : 0">
+          <div class="resumen-stat">
+            <div class="resumen-num azul">{{ countEstado('EN_ATENCION') }}</div>
+            <div class="resumen-label">En atención</div>
+          </div>
+          <div class="resumen-stat">
+            <div class="resumen-num naranja">{{ countEstado('PENDIENTE') }}</div>
+            <div class="resumen-label">Pendientes</div>
+          </div>
+          <div class="resumen-stat">
+            <div class="resumen-num verde">{{ countEstado('RESUELTA') }}</div>
+            <div class="resumen-label">Resueltas</div>
+          </div>
+        </div>
+
+        <h3 class="resumen-titulo" style="margin-top:20px">Por prioridad</h3>
+        <div class="prioridad-bars">
+          <div class="pbar-item" *ngFor="let p of ['ALTA','MEDIA','BAJA']">
+            <div class="pbar-label">
+              <span>{{ p }}</span>
+              <span>{{ countPrioridad(p) }}</span>
+            </div>
+            <div class="pbar-bg">
+              <div class="pbar-fill pbar-{{ p.toLowerCase() }}"
+                   [style.width.%]="escalaciones.length ? (countPrioridad(p) / escalaciones.length) * 100 : 0">
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="tiempo-card">
-        <div class="tiempo-label">Tiempo promedio de respuesta</div>
-        <div class="tiempo-valor">2h 45m</div>
-        <div class="tiempo-var">↓ -12% vs. ayer</div>
-      </div>
-    </aside>
+        <div class="tiempo-card">
+          <div class="tiempo-label">Tiempo promedio de respuesta</div>
+          <div class="tiempo-valor">2h 45m</div>
+          <div class="tiempo-var">↓ -12% vs. ayer</div>
+        </div>
+      </aside>
 
+    </div>
   </div>
+
+  <!-- TAB CONVERSACIONES OMNICANAL -->
+  <div *ngIf="tabActivo === 'conversaciones'">
+
+    <div class="esc-filtros" style="margin-bottom:16px">
+      <select class="filtro-select" [(ngModel)]="filtroConvEstado" (ngModelChange)="cargarConversaciones()">
+        <option value="">Estado: Todos</option>
+        <option value="ABIERTA">Abierta</option>
+        <option value="RESUELTA">Resuelta</option>
+        <option value="ESCALADA">Escalada</option>
+      </select>
+      <select class="filtro-select" [(ngModel)]="filtroConvOrigen" (ngModelChange)="cargarConversaciones()">
+        <option value="">Canal: Todos</option>
+        <option value="WEB">Web</option>
+        <option value="WHATSAPP">WhatsApp</option>
+      </select>
+      <input type="date" class="filtro-select" [(ngModel)]="filtroConvDesde" (ngModelChange)="cargarConversaciones()">
+      <input type="date" class="filtro-select" [(ngModel)]="filtroConvHasta" (ngModelChange)="cargarConversaciones()">
+      <input class="filtro-buscar" type="text" placeholder="Buscar cliente..."
+             [(ngModel)]="filtroConvBuscar" (ngModelChange)="aplicarFiltrosConv()">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 420px;gap:16px">
+
+      <div class="esc-tabla-card">
+        <table class="esc-tabla">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Canal</th>
+              <th>Estado</th>
+              <th>Mensajes</th>
+              <th>Inicio</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of conversacionesFiltradas" class="esc-fila"
+                [style.background]="convSeleccionada?.id === c.id ? 'var(--p3)' : ''">
+              <td>
+                <div style="font-weight:600">{{ c.clienteNombre || 'Sin nombre' }}</div>
+                <div style="font-size:12px;color:var(--muted)">{{ c.clienteUsername }}</div>
+              </td>
+              <td>
+                <span style="font-size:16px">{{ getCanalIcon(c.origen) }}</span>
+                {{ c.origen }}
+              </td>
+              <td>
+                <span class="estado-badge estado-{{ c.estado?.toLowerCase() }}">{{ c.estado }}</span>
+              </td>
+              <td>{{ c.cantidadMensajes || 0 }}</td>
+              <td style="font-size:12px">{{ c.fechaInicio | date:'dd/MM HH:mm' }}</td>
+              <td>
+                <button (click)="verDetalle(c)"
+                  style="padding:4px 12px;background:var(--p);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px">
+                  Ver
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Panel detalle -->
+      <div *ngIf="convSeleccionada" class="esc-tabla-card" style="padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div>
+            <div style="font-weight:700">{{ convSeleccionada.clienteNombre }}</div>
+            <div style="font-size:12px;color:var(--muted)">Conversación #{{ convSeleccionada.id }}</div>
+          </div>
+          <button (click)="cerrarDetalle()"
+            style="background:none;border:none;font-size:18px;cursor:pointer">✕</button>
+        </div>
+
+        <div *ngIf="cargandoMensajes" style="text-align:center;padding:20px;color:var(--muted)">
+          Cargando mensajes...
+        </div>
+
+        <div style="max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:8px">
+          <div *ngFor="let m of mensajesDetalle"
+            style="padding:8px 12px;border-radius:8px;font-size:13px"
+            [style.background]="m.tipoEmisor==='BOT' ? 'var(--p3)' : m.tipoEmisor==='CLIENTE' ? '#f1f5f9' : '#fef3c7'">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-weight:600;font-size:11px">
+                {{ getCanalIcon(m.canalNombre) }} {{ m.canalNombre }} · {{ m.tipoEmisor }}
+              </span>
+              <span style="font-size:11px;color:var(--muted)">
+                {{ m.fechaEnvio | date:'HH:mm' }}
+              </span>
+            </div>
+            <div>{{ m.contenido }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!convSeleccionada" class="esc-tabla-card"
+        style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;min-height:200px">
+        Selecciona una conversación para ver el detalle
+      </div>
+
+    </div>
+  </div>
+
 </div>
