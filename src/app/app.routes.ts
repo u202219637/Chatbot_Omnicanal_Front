@@ -61,5 +61,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/perfil/perfil').then(m => m.PerfilComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'atencion/:conversacionId',
+    loadComponent: () => import('./components/atencion/atencion').then(m => m.AtencionComponent),
+    canActivate: [authGuard]
+  },
   { path: '**', redirectTo: 'landing' }
 ];

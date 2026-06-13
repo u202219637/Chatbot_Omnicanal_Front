@@ -1,123 +1,203 @@
 <app-navbar></app-navbar>
 
 <div style="height:calc(100vh - 64px);display:flex;flex-direction:column;background:var(--soft)">
-
-  <!-- MAIN -->
   <div style="flex:1;display:flex;overflow:hidden;max-width:1300px;width:100%;margin:0 auto;padding:20px;gap:20px">
 
     <!-- SIDEBAR -->
     <aside class="sb-sidebar" style="border-radius:18px;border:1px solid var(--line)">
       <div style="font-size:16px;font-weight:900;margin-bottom:16px">Shadow IA</div>
-      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;
-                  letter-spacing:.06em;margin-bottom:10px">Preguntas frecuentes</div>
-      <div *ngFor="let p of preguntas"
-           class="sb-sidebar-item"
-           (click)="preguntaRapida(p.texto)">
-        <span>{{ p.icon }}</span>
-        <span>{{ p.label }}</span>
-      </div>
-      <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:16px">
-        <button class="btn-ghost" style="width:100%;justify-content:center" (click)="nuevo()">
-          ＋ Nuevo chat
+
+      <!-- Modo lectura -->
+      <div *ngIf="modoLectura"
+           style="background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;
+                  padding:12px 14px;margin-bottom:14px;font-size:12px;color:#92400e;font-weight:600">
+        Estás viendo una conversación anterior.
+        <button (click)="nuevo()"
+          style="margin-top:8px;width:100%;padding:7px;border-radius:8px;
+                 border:1px solid #d97706;background:#fffbeb;color:#92400e;
+                 font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+          Iniciar nueva conversación
         </button>
       </div>
-      <!-- WhatsApp -->
-      <div style="margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;
-                  border-radius:14px;padding:14px">
-        <div style="font-size:13px;font-weight:800;color:#15803d;margin-bottom:6px">📱 WhatsApp</div>
-        <div style="font-size:12px;color:#166534;line-height:1.5">
-          Continúa esta conversación por WhatsApp. Mismo historial.
+
+      <!-- Modo activo -->
+      <ng-container *ngIf="!modoLectura">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;
+                    letter-spacing:.06em;margin-bottom:10px">Consultas frecuentes</div>
+        <div *ngFor="let p of preguntas"
+             class="sb-sidebar-item"
+             (click)="preguntaRapida(p.texto)">
+          <span>{{ p.label }}</span>
         </div>
-        <a href="https://api.whatsapp.com/send?phone=51999000001&text=Hola+ShadowByte"
-           target="_blank" style="display:block;margin-top:10px;text-align:center;
-           background:#22c55e;color:#fff;padding:8px;border-radius:8px;
-           font-size:13px;font-weight:800">Abrir WhatsApp</a>
-      </div>
+
+        <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:16px">
+          <button class="btn-ghost" style="width:100%;justify-content:center" (click)="nuevo()">
+            + Nuevo chat
+          </button>
+        </div>
+
+        <div style="margin-top:12px">
+          <button (click)="solicitarAsesor()"
+                  [disabled]="escalando || yaEscalado"
+                  [style.background]="yaEscalado ? '#fef3c7' : '#fffbeb'"
+                  [style.opacity]="yaEscalado ? '0.7' : '1'"
+                  style="width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid #d97706;
+                         color:#92400e;font-size:13px;font-weight:800;cursor:pointer;
+                         display:flex;align-items:center;justify-content:center;
+                         font-family:inherit;transition:background .2s">
+            {{ yaEscalado ? 'Asesor solicitado' : escalando ? 'Solicitando...' : 'Hablar con un asesor' }}
+          </button>
+        </div>
+
+        <div style="margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;
+                    border-radius:14px;padding:14px">
+          <div style="font-size:13px;font-weight:800;color:#15803d;margin-bottom:6px">WhatsApp</div>
+          <div style="font-size:12px;color:#166534;line-height:1.5">
+            Continúa esta conversación por WhatsApp. Mismo historial.
+          </div>
+          <a href="https://api.whatsapp.com/send?phone=14155238886&text=join%20roof-eaten"
+             target="_blank"
+             style="display:block;margin-top:10px;text-align:center;
+             background:#22c55e;color:#fff;padding:8px;border-radius:8px;
+             font-size:13px;font-weight:800;text-decoration:none">
+            Abrir WhatsApp
+          </a>
+        </div>
+      </ng-container>
     </aside>
 
     <!-- CHAT -->
     <div style="flex:1;display:flex;flex-direction:column;background:var(--white);
                 border-radius:18px;border:1px solid var(--line);overflow:hidden">
 
-      <!-- Bot header -->
+      <!-- Header -->
       <div style="padding:18px 22px;border-bottom:1px solid var(--line);
                   display:flex;align-items:center;gap:14px">
         <div style="width:46px;height:46px;border-radius:50%;
                     background:linear-gradient(135deg,var(--p),var(--p2));
-                    color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900">S</div>
+                    color:#fff;display:flex;align-items:center;justify-content:center;
+                    font-size:20px;font-weight:900">S</div>
         <div>
           <div style="font-weight:900;font-size:16px">Shadow IA</div>
-          <div style="font-size:12px;color:#10b981;font-weight:700">● En línea · Responde al instante</div>
+          <div *ngIf="!modoLectura" style="font-size:12px;color:#10b981;font-weight:700">
+            En línea · Responde al instante
+          </div>
+          <div *ngIf="modoLectura" style="font-size:12px;color:var(--muted);font-weight:700">
+            Conversación anterior — solo lectura
+          </div>
         </div>
-        <div style="margin-left:auto" class="badge badge-purple">Omnicanal</div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <span class="badge badge-purple">Omnicanal</span>
+          <span *ngIf="yaEscalado"
+                style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;
+                       padding:4px 10px;font-size:12px;font-weight:700;color:#92400e">
+            Asesor en camino
+          </span>
+          <span *ngIf="modoLectura"
+                style="background:#f1f5f9;border:1px solid var(--line);border-radius:8px;
+                       padding:4px 10px;font-size:12px;font-weight:700;color:var(--muted)">
+            Historial
+          </span>
+        </div>
       </div>
 
       <!-- MENSAJES -->
       <div #chatBox style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column">
+
         <div *ngFor="let m of mensajes">
-          <div [class]="m.tipo === 'bot' ? 'bubble-bot' : 'bubble-you'"
-               [style.margin-left]="m.tipo === 'you' ? 'auto' : '0'"
-               [innerHTML]="m.texto | linebreak">
+
+          <!-- BOT / ASESOR -->
+          <div *ngIf="m.tipo === 'bot'"
+               style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
+            <div [style.background]="m.tipoEmisor === 'ASESOR'
+                   ? 'linear-gradient(135deg,#16a34a,#22c55e)'
+                   : 'linear-gradient(135deg,var(--p),var(--p2))'"
+                 style="width:32px;height:32px;border-radius:50%;flex-shrink:0;
+                        color:#fff;display:flex;align-items:center;justify-content:center;
+                        font-size:13px;font-weight:900">
+              {{ m.tipoEmisor === 'ASESOR' ? 'A' : 'S' }}
+            </div>
+            <div>
+              <div [style.background]="m.tipoEmisor === 'ASESOR' ? '#dcfce7' : ''"
+                   [style.color]="m.tipoEmisor === 'ASESOR' ? '#14532d' : ''"
+                   class="bubble-bot" [innerHTML]="m.texto | linebreak">
+              </div>
+              <div *ngIf="m.escalada"
+                   style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;
+                          background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;
+                          padding:4px 10px;font-size:11px;font-weight:700;color:#92400e">
+                Escalado a asesor humano
+              </div>
+              <div *ngIf="m.fuentes?.length"
+                   style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+                <span *ngFor="let f of m.fuentes" class="badge badge-blue" style="font-size:11px">
+                  {{ f.tituloDocumento }}
+                </span>
+              </div>
+            </div>
           </div>
-          <div *ngIf="m.fuentes?.length" style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px">
-            <span *ngFor="let f of m.fuentes" class="badge badge-blue" style="font-size:11px">
-              📄 {{ f.tituloDocumento }}
-            </span>
+
+          <!-- CLIENTE -->
+          <div *ngIf="m.tipo === 'you'"
+               style="display:flex;justify-content:flex-end;margin-bottom:12px">
+            <div class="bubble-you" [innerHTML]="m.texto | linebreak"></div>
+          </div>
+
+        </div>
+
+        <!-- Typing -->
+        <div *ngIf="loading && !modoLectura"
+             style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;
+                      background:linear-gradient(135deg,var(--p),var(--p2));
+                      color:#fff;display:flex;align-items:center;justify-content:center;
+                      font-size:13px;font-weight:900">S</div>
+          <div class="bubble-bot" style="width:60px">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
           </div>
         </div>
-        <div *ngIf="loading" class="bubble-bot" style="width:60px">
-          <span class="typing-dot"></span>
-          <span class="typing-dot"></span>
-          <span class="typing-dot"></span>
-        </div>
+
       </div>
 
-      <!-- INPUT -->
-      <div style="padding:16px 20px;border-top:1px solid var(--line);
+      <!-- INPUT activo -->
+      <div *ngIf="!modoLectura"
+           style="padding:16px 20px;border-top:1px solid var(--line);
                   display:flex;gap:12px;background:var(--soft)">
         <input class="sb-input" [(ngModel)]="inputText"
                placeholder="Escribe tu consulta... (Enter para enviar)"
-               (keydown.enter)="enviar()" [disabled]="loading"
+               (keydown.enter)="enviar()"
+               [disabled]="loading || yaEscalado"
                style="background:var(--white)">
-        <!-- DESPUÉS -->
-        <button class="btn-primary" 
-                (click)="$event.preventDefault(); enviar()" 
-                [disabled]="loading || !inputText.trim()"
+        <button class="btn-primary"
+                (click)="$event.preventDefault(); enviar()"
+                [disabled]="loading || !inputText.trim() || yaEscalado"
                 type="button"
                 style="padding:0 20px;min-width:64px">
-          {{ loading ? '⏳' : '➤' }}
+          {{ loading ? '...' : '>' }}
         </button>
       </div>
-    </div>
-  </div>
-</div>
 
-<!-- Widget flotante (FIX 2) -->
-<div style="position:fixed;right:24px;bottom:24px;z-index:9999">
-  <div *ngIf="widgetOpen"
-    style="margin-bottom:12px;background:#fff;border-radius:20px;
-           box-shadow:0 8px 40px rgba(15,23,42,.18);overflow:hidden;width:300px">
-    <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);padding:16px 20px;color:#fff">
-      <div style="font-weight:900;font-size:15px">ShadowByte · Soporte</div>
-    </div>
-    <a href="https://api.whatsapp.com/send?phone=51999000001" target="_blank"
-       style="display:flex;align-items:center;gap:12px;padding:14px 20px;
-              text-decoration:none;cursor:pointer;background:#fff">
-      <span style="font-size:24px">📱</span>
-      <div>
-        <div style="font-weight:800;font-size:13px;color:#0f172a">WhatsApp</div>
-        <div style="font-size:11px;color:#64748b">Continúa por WhatsApp</div>
+      <!-- Aviso asesor activo -->
+      <div *ngIf="yaEscalado && !modoLectura"
+           style="padding:10px 20px;background:#fef3c7;border-top:1px solid #fcd34d;
+                  font-size:12px;font-weight:700;color:#92400e;text-align:center">
+        Tu consulta fue escalada. Un asesor te atenderá pronto. Esta pantalla se actualiza automáticamente cada 5 segundos.
       </div>
-    </a>
+
+      <!-- Aviso modo lectura -->
+      <div *ngIf="modoLectura"
+           style="padding:12px 20px;background:var(--soft);border-top:1px solid var(--line);
+                  font-size:12px;font-weight:600;color:var(--muted);text-align:center">
+        Conversación anterior — solo lectura.
+        <button (click)="nuevo()"
+          style="margin-left:8px;color:var(--p);background:none;border:none;
+                 cursor:pointer;font-weight:700;font-size:12px">
+          Iniciar nueva consulta
+        </button>
+      </div>
+
+    </div>
   </div>
-  <button (click)="widgetOpen=!widgetOpen"
-    style="width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
-           background:linear-gradient(135deg,#4f46e5,#7c3aed);
-           box-shadow:0 4px 24px rgba(79,70,229,.45);font-size:26px;color:#fff;
-           position:relative;transition:transform .2s"
-    [style.transform]="widgetOpen ? 'rotate(45deg)' : 'rotate(0)'">
-    {{ widgetOpen ? '✕' : '💬' }}
-    <span style="position:absolute;top:2px;right:2px;width:14px;height:14px;
-                 border-radius:50%;background:#22c55e;border:2px solid #fff"></span>
-  </button>
 </div>

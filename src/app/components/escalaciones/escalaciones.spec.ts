@@ -1,18 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { EscalacionesComponent } from './escalaciones';
 
-import { Escalaciones } from './escalaciones';
-
-describe('Escalaciones', () => {
-  let component: Escalaciones;
-  let fixture: ComponentFixture<Escalaciones>;
+describe('EscalacionesComponent', () => {
+  let component: EscalacionesComponent;
+  let fixture: ComponentFixture<EscalacionesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Escalaciones]
-    })
-    .compileComponents();
+      imports: [EscalacionesComponent]
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(Escalaciones);
+    fixture = TestBed.createComponent(EscalacionesComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
