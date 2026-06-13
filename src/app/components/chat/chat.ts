@@ -69,25 +69,40 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     public auth: AuthService
   ) {}
 
-  ngOnInit() {
-    const convId = this.route.snapshot.queryParams['id'];
-    const estado  = this.route.snapshot.queryParams['estado'];
-    if (convId) {
-      this.cargarHistorial(Number(convId), estado);
-      return;
-    }
-
-    const raw = sessionStorage.getItem('chatContexto');
-    if (raw) {
-      sessionStorage.removeItem('chatContexto');
-      const ctx = JSON.parse(raw);
-      this.mensajesBienvenida();
-      setTimeout(() => { this.inputText = ctx.mensajeInicial; this.enviar(); }, 400);
-      return;
-    }
-
-    this.mensajesBienvenida();
+ngOnInit() {
+  const convId = this.route.snapshot.queryParams['id'];
+  const estado  = this.route.snapshot.queryParams['estado'];
+  if (convId) {
+    this.cargarHistorial(Number(convId), estado);
+    return;
   }
+
+  const raw = sessionStorage.getItem('chatContexto');
+  if (raw) {
+    sessionStorage.removeItem('chatContexto');
+    const ctx = JSON.parse(raw);
+    this.mensajesBienvenida();
+    setTimeout(() => { this.inputText = ctx.mensajeInicial; this.enviar(); }, 400);
+    return;
+  }
+
+  this.mensajesBienvenida();
+
+  // Verificar si hay conversación escalada activa
+  this.http.get<any[]>(
+    `${environment.apiUrl}/chat/historial`,
+    { headers: this.getHeaders() }
+  ).subscribe({
+    next: (convs) => {
+      const escalada = convs.find((c: any) => c.estado === 'ESCALADA');
+      if (escalada) {
+        this.yaEscalado = true;
+        this.convIdActual = escalada.id;
+        this.iniciarPolling(escalada.id);
+      }
+    }
+  });
+}
 
   ngOnDestroy() { this.detenerPolling(); }
 
@@ -128,6 +143,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.lastMensajesCount = this.mensajes.length;
         this.loading = false;
         if (estado === 'ESCALADA') {
+          this.convIdActual = convId;
           this.iniciarPolling(convId);
         }
       },
