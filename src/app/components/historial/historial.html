@@ -40,7 +40,8 @@
             <td style="color:#f59e0b;letter-spacing:2px">{{ stars(c.satisfaccion) }}</td>
             <td>
               <button class="btn-outline" style="padding:7px 14px;font-size:13px"
-                      (click)="verChat(c.id)">Ver →</button>
+                      (click)="verChat(c.id, c.estado)">Ver →</button>
+                      
             </td>
           </tr>
         </tbody>

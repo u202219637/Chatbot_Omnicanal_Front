@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from '../shared/navbar/navbar';
 import { DashboardService } from '../../services/dashboard.service';
-import { KpiDTO, TokenConsumo, IntencionFrecuente } from '../../models/dashboard.model';
+import { KpiDTO, IntencionFrecuente } from '../../models/dashboard.model';
+import { environment } from '../../../environments/environment';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -16,7 +17,7 @@ export class DashboardComponent implements OnInit {
 
   kpis: KpiDTO | null = null;
   intenciones: IntencionFrecuente[] = [];
-  tokens: TokenConsumo[] = [];
+  convsDia: any[] = [];
   documentosUsados: any[] = [];
 
   cargando = true;
@@ -38,28 +39,28 @@ export class DashboardComponent implements OnInit {
     this.cargando = true;
 
     forkJoin({
-      kpis:       this.dashboardService.kpis(),
+      kpis:        this.dashboardService.kpis(),
       intenciones: this.dashboardService.intenciones(),
-      tokens:      this.dashboardService.tokens(),
+      convsDia:    this.dashboardService.convsPorDia(),
       documentos:  this.dashboardService.documentosUsados()
     }).subscribe({
-      next: ({ kpis, intenciones, tokens, documentos }) => {
+      next: ({ kpis, intenciones, convsDia, documentos }) => {
         this.kpis             = kpis;
         this.intenciones      = intenciones.slice(0, 6);
-        this.tokens           = tokens.slice(-7);
+        this.convsDia         = convsDia.slice(-30);
         this.documentosUsados = documentos.slice(0, 5);
         this.cargando         = false;
       },
       error: () => {
         this.kpis = {
-          totalConversaciones:     0,
-          conversacionesResueltas: 0,
-          tiempoPromedioRespuesta: '--:--',
+          totalConversaciones:      0,
+          conversacionesResueltas:  0,
+          tiempoPromedioRespuesta:  '--:--',
           tasaResolucionAutomatica: 0,
-          satisfaccionPromedio:    0,
-          tasaDesvioHumano:        0,
-          conversacionesWeb:       0,
-          conversacionesWhatsapp:  0
+          satisfaccionPromedio:     0,
+          tasaDesvioHumano:         0,
+          conversacionesWeb:        0,
+          conversacionesWhatsapp:   0
         };
         this.errorKpis = true;
         this.cargando  = false;
@@ -67,8 +68,8 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  maxTokens(): number {
-    return Math.max(...this.tokens.map(t => t.tokensTotal), 1);
+  maxConvs(): number {
+    return Math.max(...this.convsDia.map(d => d.total), 1);
   }
 
   colorIntencion(i: number): string {
@@ -84,10 +85,5 @@ export class DashboardComponent implements OnInit {
       return `${this.colorIntencion(i)} ${desde.toFixed(1)}% ${acum.toFixed(1)}%`;
     });
     return `conic-gradient(${partes.join(', ')})`;
-  }
-
-  totalTokensHoy(): number {
-    if (!this.tokens.length) return 0;
-    return this.tokens[this.tokens.length - 1]?.tokensTotal ?? 0;
   }
 }

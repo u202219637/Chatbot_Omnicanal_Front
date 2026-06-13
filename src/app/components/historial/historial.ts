@@ -27,7 +27,9 @@ export class HistorialComponent implements OnInit {
     });
   }
 
-  verChat(id: number) { this.router.navigate(['/chat'], { queryParams: { id } }); }
+  verChat(id: number, estado: string) { 
+    this.router.navigate(['/chat'], { queryParams: { id, estado } }); 
+  }
   logout() { this.auth.logout(); }
   formatFecha(f: string) {
     return new Date(f).toLocaleDateString('es-PE', {

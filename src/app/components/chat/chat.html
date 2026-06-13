@@ -168,11 +168,11 @@
         <input class="sb-input" [(ngModel)]="inputText"
                placeholder="Escribe tu consulta... (Enter para enviar)"
                (keydown.enter)="enviar()"
-               [disabled]="loading || yaEscalado"
+               [disabled]="loading"
                style="background:var(--white)">
         <button class="btn-primary"
                 (click)="$event.preventDefault(); enviar()"
-                [disabled]="loading || !inputText.trim() || yaEscalado"
+                [disabled]="loading || !inputText.trim()"
                 type="button"
                 style="padding:0 20px;min-width:64px">
           {{ loading ? '...' : '>' }}

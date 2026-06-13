@@ -10,8 +10,9 @@ export class DashboardService {
 
   constructor(private http: HttpClient) {}
 
-  kpis(): Observable<KpiDTO>                        { return this.http.get<KpiDTO>(`${this.url}/kpis`); }
-  tokens(): Observable<TokenConsumo[]>              { return this.http.get<TokenConsumo[]>(`${this.url}/tokens`); }
-  intenciones(): Observable<IntencionFrecuente[]>   { return this.http.get<IntencionFrecuente[]>(`${this.url}/intenciones`); }
-  documentosUsados(): Observable<any[]>             { return this.http.get<any[]>(`${this.url}/documentos-usados`); }
+  kpis(): Observable<KpiDTO>                      { return this.http.get<KpiDTO>(`${this.url}/kpis`); }
+  tokens(): Observable<TokenConsumo[]>            { return this.http.get<TokenConsumo[]>(`${this.url}/tokens`); }
+  intenciones(): Observable<IntencionFrecuente[]> { return this.http.get<IntencionFrecuente[]>(`${this.url}/intenciones`); }
+  documentosUsados(): Observable<any[]>           { return this.http.get<any[]>(`${this.url}/documentos-usados`); }
+  convsPorDia(): Observable<any[]>                { return this.http.get<any[]>(`${this.url}/conversaciones-por-dia`); }
 }

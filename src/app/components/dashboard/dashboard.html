@@ -85,28 +85,41 @@
     <!-- FILA 2 -->
     <div class="dash-fila2">
 
-      <div class="dash-card dash-card--grande">
-        <h3 class="card-titulo">Tokens consumidos (últimos 7 días)</h3>
-        <ng-container *ngIf="tokens.length; else sinTokens">
-          <div class="barras-contenedor">
-            <div class="barra-grupo" *ngFor="let t of tokens">
-              <div class="barra"
-                   [style.height.px]="(t.tokensTotal / maxTokens()) * 120"
-                   [title]="t.dia + ': ' + (t.tokensTotal | number) + ' tokens'">
+        <div class="dash-card dash-card--grande">
+          <h3 class="card-titulo">Conversaciones por día (últimos 30 días)</h3>
+          <ng-container *ngIf="convsDia.length; else sinConvs">
+            <div class="barras-contenedor" style="gap:6px">
+              <div class="barra-grupo" *ngFor="let d of convsDia" style="position:relative">
+                <!-- Barra WhatsApp encima -->
+                <div style="width:100%;border-radius:4px 4px 0 0;background:#22c55e;min-height:4px"
+                    [style.height.px]="(d.totalWhatsapp / maxConvs()) * 100"
+                    [title]="d.dia + ' WA: ' + d.totalWhatsapp">
+                </div>
+                <!-- Barra Web debajo -->
+                <div style="width:100%;background:var(--p2);min-height:4px"
+                    [style.height.px]="(d.totalWeb / maxConvs()) * 100"
+                    [title]="d.dia + ' Web: ' + d.totalWeb">
+                </div>
               </div>
             </div>
-          </div>
-          <div class="barras-labels">
-            <span *ngFor="let t of tokens">{{ t.dia | slice:5:10 }}</span>
-          </div>
-          <div class="tokens-total">
-            Total hoy: <strong>{{ totalTokensHoy() | number }}</strong> tokens
-          </div>
-        </ng-container>
-        <ng-template #sinTokens>
-          <div class="sin-datos">Sin datos de consumo aún</div>
-        </ng-template>
-      </div>
+            <div class="barras-labels">
+              <span *ngFor="let d of convsDia">{{ d.dia | slice:5:10 }}</span>
+            </div>
+            <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;font-weight:700">
+              <span style="display:flex;align-items:center;gap:5px">
+                <span style="width:10px;height:10px;background:var(--p2);border-radius:2px;display:inline-block"></span>
+                Web
+              </span>
+              <span style="display:flex;align-items:center;gap:5px">
+                <span style="width:10px;height:10px;background:#22c55e;border-radius:2px;display:inline-block"></span>
+                WhatsApp
+              </span>
+            </div>
+          </ng-container>
+          <ng-template #sinConvs>
+            <div class="sin-datos">Sin conversaciones registradas aún</div>
+          </ng-template>
+        </div>
 
       <div class="dash-card">
         <h3 class="card-titulo">Intenciones frecuentes</h3>

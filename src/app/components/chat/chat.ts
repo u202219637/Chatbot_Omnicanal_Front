@@ -71,8 +71,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnInit() {
     const convId = this.route.snapshot.queryParams['id'];
+    const estado  = this.route.snapshot.queryParams['estado'];
     if (convId) {
-      this.cargarHistorial(Number(convId));
+      this.cargarHistorial(Number(convId), estado);
       return;
     }
 
@@ -104,8 +105,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }];
   }
 
-  cargarHistorial(convId: number) {
-    this.modoLectura = true;
+  cargarHistorial(convId: number, estado?: string) {
+      // Si la conversación está escalada, NO es solo lectura — el cliente puede recibir mensajes del asesor
+    this.modoLectura = estado !== 'ESCALADA';
+    this.yaEscalado  = estado === 'ESCALADA';
     this.loading = true;
     this.mensajes = [];
     this.convIdActual = convId;
@@ -124,6 +127,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         }));
         this.lastMensajesCount = this.mensajes.length;
         this.loading = false;
+        if (estado === 'ESCALADA') {
+          this.iniciarPolling(convId);
+        }
       },
       error: () => {
         this.loading = false;
@@ -134,7 +140,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   enviar() {
     const texto = this.inputText.trim();
-    if (!texto || this.loading || this.yaEscalado || this.modoLectura) return;
+    if (!texto || this.loading || this.modoLectura) return;
     this.inputText = '';
     this.mensajes.push({ tipo: 'you', texto });
     this.loading = true;
@@ -146,6 +152,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     ).subscribe({
       next: res => {
         this.convIdActual = res.conversacionId;
+        // Conversación escalada — no mostrar burbuja de IA
+        if (res.tipoEmisor === 'SISTEMA') {
+          this.loading = false;
+          return;
+        }
         const msg: Mensaje = {
           tipo: 'bot',
           texto: res.contenido || 'Tu consulta fue procesada.',
