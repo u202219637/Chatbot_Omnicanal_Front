@@ -26,6 +26,7 @@ interface Mensaje {
   fuentes?: any[];
   escalada?: boolean;
   tipoEmisor?: string;
+  canalNombre?: string;
 }
 
 @Component({
@@ -69,40 +70,48 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     public auth: AuthService
   ) {}
 
-ngOnInit() {
-  const convId = this.route.snapshot.queryParams['id'];
-  const estado  = this.route.snapshot.queryParams['estado'];
-  if (convId) {
-    this.cargarHistorial(Number(convId), estado);
-    return;
-  }
-
-  const raw = sessionStorage.getItem('chatContexto');
-  if (raw) {
-    sessionStorage.removeItem('chatContexto');
-    const ctx = JSON.parse(raw);
-    this.mensajesBienvenida();
-    setTimeout(() => { this.inputText = ctx.mensajeInicial; this.enviar(); }, 400);
-    return;
-  }
-
-  this.mensajesBienvenida();
-
-  // Verificar si hay conversación escalada activa
-  this.http.get<any[]>(
-    `${environment.apiUrl}/chat/historial`,
-    { headers: this.getHeaders() }
-  ).subscribe({
-    next: (convs) => {
-      const escalada = convs.find((c: any) => c.estado === 'ESCALADA');
-      if (escalada) {
-        this.yaEscalado = true;
-        this.convIdActual = escalada.id;
-        this.iniciarPolling(escalada.id);
-      }
+  ngOnInit() {
+    const convId = this.route.snapshot.queryParams['id'];
+    const estado  = this.route.snapshot.queryParams['estado'];
+    if (convId) {
+      this.cargarHistorial(Number(convId), estado);
+      return;
     }
-  });
-}
+
+    const raw = sessionStorage.getItem('chatContexto');
+    if (raw) {
+      sessionStorage.removeItem('chatContexto');
+      const ctx = JSON.parse(raw);
+      this.mensajesBienvenida();
+      setTimeout(() => { this.inputText = ctx.mensajeInicial; this.enviar(); }, 400);
+      return;
+    }
+
+    this.mensajesBienvenida();
+
+    // Verificar si hay conversación escalada activa
+    this.http.get<any[]>(
+      `${environment.apiUrl}/chat/historial`,
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (convs) => {
+        const escalada = convs.find((c: any) => c.estado === 'ESCALADA');
+        if (escalada) {
+          this.yaEscalado = true;
+          this.convIdActual = escalada.id;
+          this.http.get<any[]>(
+            `${environment.apiUrl}/chat/${escalada.id}/mensajes`,
+            { headers: this.getHeaders() }
+          ).subscribe({
+            next: (msgs) => {
+              this.lastMensajesCount = msgs.length;
+              this.iniciarPolling(escalada.id);
+            }
+          });
+        }
+      }
+    });
+  }
 
   ngOnDestroy() { this.detenerPolling(); }
 
@@ -121,7 +130,6 @@ ngOnInit() {
   }
 
   cargarHistorial(convId: number, estado?: string) {
-      // Si la conversación está escalada, NO es solo lectura — el cliente puede recibir mensajes del asesor
     this.modoLectura = estado !== 'ESCALADA';
     this.yaEscalado  = estado === 'ESCALADA';
     this.loading = true;
@@ -138,7 +146,8 @@ ngOnInit() {
           texto: m.tipoEmisor === 'ASESOR' ? `[Asesor]: ${m.contenido}` : m.contenido,
           fuentes: m.fuentes || [],
           escalada: false,
-          tipoEmisor: m.tipoEmisor
+          tipoEmisor: m.tipoEmisor,
+          canalNombre: m.canalNombre || 'WEB'
         }));
         this.lastMensajesCount = this.mensajes.length;
         this.loading = false;
@@ -168,7 +177,6 @@ ngOnInit() {
     ).subscribe({
       next: res => {
         this.convIdActual = res.conversacionId;
-        // Conversación escalada — no mostrar burbuja de IA
         if (res.tipoEmisor === 'SISTEMA') {
           this.loading = false;
           return;
@@ -244,6 +252,25 @@ ngOnInit() {
             }
           });
           this.lastMensajesCount = msgs.length;
+
+          // Detectar si el asesor cerró el caso
+          this.http.get<any[]>(
+            `${environment.apiUrl}/chat/historial`,
+            { headers: this.getHeaders() }
+          ).subscribe({
+            next: (convs) => {
+              const conv = convs.find((c: any) => c.id === this.convIdActual);
+              if (!conv || conv.estado === 'CERRADA') {
+                this.detenerPolling();
+                this.yaEscalado = false;
+                this.modoLectura = true;
+                this.mensajes.push({
+                  tipo: 'bot',
+                  texto: 'El asesor ha cerrado la conversación. Puedes iniciar una nueva consulta.'
+                });
+              }
+            }
+          });
         }
       });
     }, 5000);

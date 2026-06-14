@@ -56,7 +56,7 @@ export class EscalacionesComponent implements OnInit {
 
   cargarEscalaciones() {
     this.cargando = true;
-    this.http.get<any[]>(`${environment.apiUrl}/escalaciones`,
+    this.http.get<any[]>(`${environment.apiUrl}/escalaciones?estado=TODOS`,
       { headers: this.getHeaders() }).subscribe({
       next: (data) => { this.escalaciones = data; this.aplicarFiltros(); this.cargando = false; },
       error: () => { this.cargando = false; }

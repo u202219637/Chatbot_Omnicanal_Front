@@ -140,7 +140,11 @@
           <!-- CLIENTE -->
           <div *ngIf="m.tipo === 'you'"
                style="display:flex;justify-content:flex-end;margin-bottom:12px">
-            <div class="bubble-you" [innerHTML]="m.texto | linebreak"></div>
+            <div class="bubble-you"
+                [style.background]="m.canalNombre === 'WHATSAPP' ? '#fef9c3' : ''"
+                [style.color]="m.canalNombre === 'WHATSAPP' ? '#713f12' : ''"
+                [innerHTML]="m.texto | linebreak">
+            </div>
           </div>
 
         </div>

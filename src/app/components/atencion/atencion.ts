@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './atencion.html',
   styleUrl: './atencion.css'
 })
-export class AtencionComponent implements OnInit, AfterViewChecked {
+export class AtencionComponent implements OnInit, OnDestroy,AfterViewChecked {
   @ViewChild('chatBox') chatBox!: ElementRef;
 
   conversacionId: number | null = null;
@@ -25,6 +25,10 @@ export class AtencionComponent implements OnInit, AfterViewChecked {
   inputText = '';
   enviando = false;
   cargando = true;
+  prioridadSeleccionada = 'MEDIA';
+  private shouldScroll = false;
+  private pollingInterval: any = null;
+  private lastCount = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -45,22 +49,56 @@ export class AtencionComponent implements OnInit, AfterViewChecked {
     this.cargarMensajes();
   }
 
-  ngAfterViewChecked() {
+    ngAfterViewChecked() {
+        if (this.shouldScroll && this.chatBox?.nativeElement) {
+          const el = this.chatBox.nativeElement;
+          el.scrollTop = el.scrollHeight;
+          this.shouldScroll = false;
+        }
+      }
+
+  /*ngAfterViewChecked() {
     if (this.chatBox?.nativeElement) {
       const el = this.chatBox.nativeElement;
       el.scrollTop = el.scrollHeight;
     }
-  }
-
-  cargarMensajes() {
+  }*/
+cargarMensajes() {
     this.cargando = true;
     this.http.get<any[]>(
       `${environment.apiUrl}/chat/${this.conversacionId}/mensajes`,
       { headers: this.getHeaders() }
     ).subscribe({
-      next: (msgs) => { this.mensajes = msgs; this.cargando = false; },
+      next: (msgs) => {
+        this.mensajes = msgs;
+        this.lastCount = msgs.length;
+        this.cargando = false;
+        this.iniciarPolling();
+      },
       error: () => { this.cargando = false; }
     });
+  }
+
+iniciarPolling() {
+    if (this.pollingInterval) clearInterval(this.pollingInterval);
+    this.pollingInterval = setInterval(() => {
+      this.http.get<any[]>(
+        `${environment.apiUrl}/chat/${this.conversacionId}/mensajes`,
+        { headers: this.getHeaders() }
+      ).subscribe({
+        next: (msgs) => {
+          if (msgs.length > this.lastCount) {
+            this.mensajes = msgs;
+            this.lastCount = msgs.length;
+            this.shouldScroll = true;
+          }
+        }
+      });
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    if (this.pollingInterval) clearInterval(this.pollingInterval);
   }
 
   enviar() {
@@ -94,9 +132,24 @@ export class AtencionComponent implements OnInit, AfterViewChecked {
       { headers: this.getHeaders() }
     ).subscribe({ next: () => this.volver(), error: () => this.volver() });
   }
+  resolverCaso() {
+      if (!this.escalacionId) { this.volver(); return; }
+      if (!confirm('¿Marcar como resuelto?')) return;
+      this.http.put(
+        `${environment.apiUrl}/escalaciones/${this.escalacionId}/resolver`, {},
+        { headers: this.getHeaders() }
+      ).subscribe({ next: () => this.volver(), error: () => this.volver() });
+    }
 
   volver() { this.router.navigate(['/escalaciones']); }
-
+  cambiarPrioridad() {
+      if (!this.escalacionId) return;
+      this.http.put(
+        `${environment.apiUrl}/escalaciones/${this.escalacionId}/prioridad`,
+        { prioridad: this.prioridadSeleccionada },
+        { headers: this.getHeaders() }
+      ).subscribe();
+    }
   getCanalIcon(canal: string): string {
     if (!canal) return '🌐';
     return canal === 'WHATSAPP' ? '📱' : '🌐';
