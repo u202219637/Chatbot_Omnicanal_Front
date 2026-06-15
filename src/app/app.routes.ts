@@ -66,5 +66,9 @@ export const routes: Routes = [
     loadComponent: () => import('./components/atencion/atencion').then(m => m.AtencionComponent),
     canActivate: [authGuard]
   },
+  {
+  path: 'privacidad',
+  loadComponent: () => import('./components/privacidad/privacidad').then(m => m.PrivacidadComponent)
+  },
   { path: '**', redirectTo: 'landing' }
 ];

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NavbarComponent } from '../shared/navbar/navbar';
+import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -27,9 +28,22 @@ export class PerfilComponent implements OnInit {
   error     = '';
   usuarioId: number | null = null;
 
-  constructor(private http: HttpClient) {}
+  // HU11 — eliminar cuenta
+  rolUsuario       = '';
+  mostrarConfirm   = false;
+  eliminando       = false;
+  confirmTexto     = '';   // el usuario debe escribir su username para confirmar
 
-  ngOnInit() { this.cargarPerfil(); }
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.rolUsuario = this.auth.getRol();
+    this.cargarPerfil();
+  }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token') || '';
@@ -39,7 +53,6 @@ export class PerfilComponent implements OnInit {
   cargarPerfil() {
     this.cargando = true;
     this.error    = '';
-
     this.http.get<any>(`${environment.apiUrl}/usuarios/miperfil`,
       { headers: this.getHeaders() }
     ).subscribe({
@@ -105,7 +118,6 @@ export class PerfilComponent implements OnInit {
     ).subscribe({
       next: () => { this.guardando = false; this.exito = true; setTimeout(() => this.exito = false, 3000); },
       error: (err) => {
-        console.error('PUT /me falló:', err);
         if (this.usuarioId) {
           this.guardarConId(body);
         } else {
@@ -122,8 +134,40 @@ export class PerfilComponent implements OnInit {
     ).subscribe({
       next: () => { this.guardando = false; this.exito = true; setTimeout(() => this.exito = false, 3000); },
       error: (err) => {
-        this.error    = `Error al guardar (${err.status}). Verifica que el endpoint existe en el backend.`;
+        this.error    = `Error al guardar (${err.status}).`;
         this.guardando = false;
+      }
+    });
+  }
+
+  // ── HU11 — Eliminar cuenta ─────────────────────────────────────────────
+  abrirConfirmEliminar() {
+    this.mostrarConfirm = true;
+    this.confirmTexto   = '';
+  }
+
+  cerrarConfirmEliminar() {
+    this.mostrarConfirm = false;
+    this.confirmTexto   = '';
+  }
+
+  confirmarEliminar() {
+    if (this.confirmTexto !== this.username) {
+      this.error = 'El usuario escrito no coincide. Escribe exactamente: ' + this.username;
+      return;
+    }
+    this.eliminando = true;
+    this.http.delete(`${environment.apiUrl}/usuarios/miperfil`,
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: () => {
+        this.auth.logout();
+        this.router.navigate(['/landing']);
+      },
+      error: (err) => {
+        this.error     = `Error al eliminar la cuenta (${err.status}).`;
+        this.eliminando = false;
+        this.mostrarConfirm = false;
       }
     });
   }

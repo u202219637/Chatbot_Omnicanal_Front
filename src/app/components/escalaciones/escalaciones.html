@@ -13,35 +13,24 @@
     </button>
   </div>
 
-  <div *ngIf="mensajeExito"
-       style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;
-              padding:12px 18px;font-size:13px;font-weight:700;color:#166534;
-              margin-bottom:16px">
+  <div *ngIf="mensajeExito" class="msg-exito">
     {{ mensajeExito }}
   </div>
 
-  <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--line)">
-    <button (click)="cambiarTab('escalaciones')"
-      [style.border-bottom]="tabActivo==='escalaciones' ? '3px solid var(--p)' : '3px solid transparent'"
-      [style.color]="tabActivo==='escalaciones' ? 'var(--p)' : 'var(--muted)'"
-      style="padding:10px 22px;background:none;border-left:none;border-right:none;border-top:none;
-             font-weight:700;cursor:pointer;font-family:inherit;font-size:14px">
+  <!-- TABS -->
+  <div class="tabs-bar">
+    <button (click)="cambiarTab('escalaciones')" class="tab-btn"
+      [class.tab-activo]="tabActivo==='escalaciones'">
       Escalaciones
-      <span style="margin-left:6px;background:var(--p3);color:var(--p);
-                   border-radius:99px;padding:1px 8px;font-size:11px">
-        {{ escalaciones.length }}
-      </span>
+      <span class="tab-badge">{{ escalaciones.length }}</span>
     </button>
-    <button (click)="cambiarTab('conversaciones')"
-      [style.border-bottom]="tabActivo==='conversaciones' ? '3px solid var(--p)' : '3px solid transparent'"
-      [style.color]="tabActivo==='conversaciones' ? 'var(--p)' : 'var(--muted)'"
-      style="padding:10px 22px;background:none;border-left:none;border-right:none;border-top:none;
-             font-weight:700;cursor:pointer;font-family:inherit;font-size:14px">
+    <button (click)="cambiarTab('conversaciones')" class="tab-btn"
+      [class.tab-activo]="tabActivo==='conversaciones'">
       Conversaciones omnicanal
     </button>
   </div>
 
-  <!-- TAB ESCALACIONES -->
+  <!-- ══ TAB ESCALACIONES ══ -->
   <div *ngIf="tabActivo === 'escalaciones'">
     <div class="esc-filtros">
       <select class="filtro-select" [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
@@ -86,8 +75,8 @@
                 </div>
               </td>
               <td>
-                <div style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-                            font-weight:700" [title]="e.motivo">{{ e.motivo || '-' }}</div>
+                <div style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700"
+                     [title]="e.motivo">{{ e.motivo || '-' }}</div>
               </td>
               <td>
                 <span class="prioridad-badge prioridad-{{ (e.prioridad||'baja').toLowerCase() }}">
@@ -112,8 +101,7 @@
                 <div style="display:flex;gap:6px">
                   <button *ngIf="puedeAtender(e)"
                     (click)="tomarYAtender(e)" [disabled]="accionando[e.id]"
-                    style="padding:6px 14px;border:none;
-                           background:linear-gradient(135deg,var(--p),var(--p2));
+                    style="padding:6px 14px;border:none;background:linear-gradient(135deg,var(--p),var(--p2));
                            color:#fff;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">
                     {{ accionando[e.id] ? 'Procesando...' : (e.estado === 'EN_ATENCION' ? 'Continuar atención' : 'Atender') }}
                   </button>
@@ -173,65 +161,191 @@
     </div>
   </div>
 
-  <!-- TAB CONVERSACIONES -->
-  <div *ngIf="tabActivo === 'conversaciones'">
-    <div class="esc-filtros" style="margin-bottom:16px">
+  <!-- ══ TAB CONVERSACIONES OMNICANAL ══ -->
+  <div *ngIf="tabActivo === 'conversaciones'" class="meta-tab">
+
+    <!-- Filtros -->
+    <div class="meta-filtros">
+      <input class="filtro-buscar" type="text" placeholder="🔍 Buscar cliente..."
+             [(ngModel)]="filtroConvBuscar" (ngModelChange)="aplicarFiltrosConv()"
+             style="flex:1;min-width:180px">
       <select class="filtro-select" [(ngModel)]="filtroConvEstado" (ngModelChange)="cargarConversaciones()">
-        <option value="">Estado: Todos</option>
+        <option value="">Todos los estados</option>
         <option value="ABIERTA">Abierta</option>
-        <option value="RESUELTA">Resuelta</option>
         <option value="ESCALADA">Escalada</option>
         <option value="CERRADA">Cerrada</option>
       </select>
       <select class="filtro-select" [(ngModel)]="filtroConvOrigen" (ngModelChange)="cargarConversaciones()">
-        <option value="">Canal: Todos</option>
+        <option value="">Todos los canales</option>
         <option value="WEB">Web</option>
         <option value="WHATSAPP">WhatsApp</option>
       </select>
-      <input type="date" class="filtro-select" [(ngModel)]="filtroConvDesde" (ngModelChange)="cargarConversaciones()">
-      <input type="date" class="filtro-select" [(ngModel)]="filtroConvHasta" (ngModelChange)="cargarConversaciones()">
-      <input class="filtro-buscar" type="text" placeholder="Buscar cliente..."
-             [(ngModel)]="filtroConvBuscar" (ngModelChange)="aplicarFiltrosConv()">
-      <button (click)="limpiarFiltrosConv()"
-        style="padding:9px 14px;border-radius:8px;border:1px solid var(--line);
-               background:white;font-size:12px;font-weight:700;cursor:pointer;
-               color:var(--muted);font-family:inherit;white-space:nowrap">
-        Limpiar
-      </button>
     </div>
 
-    <div class="esc-tabla-card">
-      <table class="esc-tabla">
-        <thead>
-          <tr>
-            <th>Cliente</th><th>Canal</th><th>Estado</th><th>Mensajes</th><th>Inicio</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of conversacionesFiltradas" class="esc-fila">
-            <td>
-              <div style="font-weight:700;font-size:13px">{{ c.clienteNombre || 'Sin nombre' }}</div>
-              <div style="font-size:11px;color:var(--muted)">{{ c.clienteUsername }}</div>
-            </td>
-            <td style="font-size:13px">{{ c.origen }}</td>
-            <td>
-              <span class="estado-badge estado-{{ c.estado?.toLowerCase() }}">{{ c.estado }}</span>
-            </td>
-            <td style="text-align:center">{{ c.cantidadMensajes || 0 }}</td>
-            <td style="font-size:12px;color:var(--muted)">{{ c.fechaInicio | date:'dd/MM HH:mm' }}</td>
-          </tr>
-          <tr *ngIf="conversacionesFiltradas.length === 0">
-            <td colspan="5" style="text-align:center;padding:40px;color:var(--muted);font-size:14px">
-              Sin conversaciones.
-              <button (click)="limpiarFiltrosConv()"
-                style="margin-left:8px;color:var(--p);background:none;border:none;
-                       cursor:pointer;font-weight:700;font-size:13px">
-                Ver todas
+    <!-- Panel Meta -->
+    <div class="meta-panel">
+
+      <!-- SIDEBAR izquierdo -->
+      <div class="meta-sidebar">
+        <div class="meta-lista">
+          <div *ngFor="let c of conversacionesFiltradas"
+               (click)="seleccionarConv(c)"
+               class="meta-item"
+               [class.meta-item--activo]="convSeleccionada?.id === c.id">
+            <div class="meta-avatar">{{ (c.clienteNombre||'SC').substring(0,2).toUpperCase() }}</div>
+            <div class="meta-item-info">
+              <div class="meta-item-top">
+                <span class="meta-item-nombre">{{ c.clienteNombre || 'Sin nombre' }}</span>
+                <span class="meta-item-fecha">{{ c.fechaInicio | date:'dd/MM HH:mm' }}</span>
+              </div>
+              <div class="meta-item-bottom">
+                <span>{{ getCanalIcon(c.origen) }}</span>
+                <span [class]="'estado-badge estado-' + c.estado?.toLowerCase()"
+                      style="font-size:10px;padding:1px 6px">{{ c.estado }}</span>
+                <span class="meta-item-msgs">{{ c.cantidadMensajes || 0 }} msgs</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="conversacionesFiltradas.length === 0" class="meta-empty">
+            Sin conversaciones
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <div class="meta-chat">
+
+        <!-- Sin selección -->
+        <div *ngIf="!convSeleccionada" class="meta-placeholder">
+          <div style="font-size:48px;margin-bottom:12px">💬</div>
+          <div style="font-size:15px;font-weight:700">Selecciona una conversación</div>
+          <div style="font-size:13px;margin-top:4px">para ver los mensajes</div>
+        </div>
+
+        <!-- Con conversación -->
+        <ng-container *ngIf="convSeleccionada">
+
+          <!-- Header del chat -->
+          <div class="meta-chat-header">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="meta-avatar">
+                {{ (convSeleccionada.clienteNombre||'SC').substring(0,2).toUpperCase() }}
+              </div>
+              <div>
+                <div style="font-weight:800;font-size:14px">{{ convSeleccionada.clienteNombre }}</div>
+                <div style="font-size:11px;color:var(--muted)">
+                  {{ getCanalIcon(convSeleccionada.origen) }} {{ convSeleccionada.origen }}
+                  · {{ convSeleccionada.cantidadMensajes || 0 }} mensajes
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span [class]="'estado-badge estado-' + convSeleccionada.estado?.toLowerCase()">
+                {{ convSeleccionada.estado }}
+              </span>
+              <button *ngIf="convSeleccionada.estado === 'ESCALADA'"
+                      (click)="resolverConv()"
+                      style="padding:6px 12px;border-radius:8px;border:1px solid #86efac;
+                             background:#f0fdf4;font-size:12px;font-weight:700;cursor:pointer;
+                             color:#16a34a;font-family:inherit">
+                ✅ Resolver
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <button *ngIf="convSeleccionada.estado !== 'CERRADA'"
+                      (click)="cerrarConv()"
+                      style="padding:6px 12px;border-radius:8px;border:1px solid #fca5a5;
+                             background:#fef2f2;font-size:12px;font-weight:700;cursor:pointer;
+                             color:#dc2626;font-family:inherit">
+                ❌ Cerrar
+              </button>
+              <select *ngIf="convSeleccionada.estado === 'ESCALADA'"
+                      [(ngModel)]="prioridadConvSeleccionada"
+                      (change)="cambiarPrioridadConv($event)"
+                      style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);
+                             font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">
+                <option value="BAJA">🟢 Baja</option>
+                <option value="MEDIA">🟡 Media</option>
+                <option value="ALTA">🔴 Alta</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Mensajes -->
+          <div class="meta-mensajes">
+            <div *ngIf="cargandoMensajes" style="text-align:center;padding:40px;color:var(--muted);font-size:13px">
+              Cargando mensajes...
+            </div>
+
+            <div *ngFor="let m of mensajesConv">
+              <!-- CLIENTE -->
+              <div *ngIf="m.tipoEmisor === 'CLIENTE'" class="burbuja-cliente-wrap">
+                <div>
+                  <div class="burbuja-meta">{{ getCanalIcon(m.canalNombre) }} Cliente · {{ m.fechaEnvio | date:'HH:mm' }}</div>
+                  <div class="burbuja-cliente"
+                       [style.background]="m.canalNombre === 'WHATSAPP' ? '#fef9c3' : '#e0e7ff'"
+                       [style.color]="m.canalNombre === 'WHATSAPP' ? '#713f12' : '#1e1b4b'">
+                    {{ m.contenido }}
+                  </div>
+                </div>
+              </div>
+
+        <!-- BOT/SISTEMA -->
+        <div *ngIf="m.tipoEmisor === 'BOT' || m.tipoEmisor === 'SISTEMA'" class="burbuja-bot-wrap">
+          <div class="burbuja-icon burbuja-icon--bot">S</div>
+          <div>
+            <div class="burbuja-meta">Shadow IA · {{ m.fechaEnvio | date:'HH:mm' }}</div>
+            <div class="burbuja-bot">{{ m.contenido }}</div>
+            <!-- FUENTES RAG — visible solo para asesor -->
+            <div *ngIf="m.fuentes && m.fuentes.length > 0"
+                style="margin-top:6px;padding:6px 10px;background:#f8f8fc;
+                        border:1px solid var(--line);border-radius:8px;font-size:11px">
+              <div style="font-weight:800;color:var(--muted);margin-bottom:4px">📎 Fuentes RAG</div>
+              <div *ngFor="let f of m.fuentes"
+                  style="display:flex;justify-content:space-between;align-items:center;
+                          padding:3px 0;border-bottom:1px solid var(--line);gap:8px">
+                <span style="color:var(--ink);font-weight:600;white-space:nowrap;
+                            overflow:hidden;text-overflow:ellipsis;max-width:180px"
+                      [title]="f.tituloDocumento">
+                  📄 {{ f.tituloDocumento || 'Catálogo' }}
+                </span>
+                <span style="color:#16a34a;font-weight:800;flex-shrink:0">
+                  {{ (f.scoreRelevancia * 100).toFixed(0) }}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+              <!-- ASESOR -->
+              <div *ngIf="m.tipoEmisor === 'ASESOR'" class="burbuja-bot-wrap">
+                <div class="burbuja-icon burbuja-icon--asesor">A</div>
+                <div>
+                  <div class="burbuja-meta">Asesor · {{ m.fechaEnvio | date:'HH:mm' }}</div>
+                  <div class="burbuja-asesor">{{ m.contenido }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── INPUT ASESOR ── -->
+      <div *ngIf="convSeleccionada.estado?.toUpperCase() === 'ESCALADA' || convSeleccionada.estado?.toUpperCase() === 'ABIERTA' || convSeleccionada.estado?.toUpperCase() === 'EN_ATENCION'"               class="meta-input-bar">
+            <textarea
+              [(ngModel)]="inputRespuesta"
+              (keydown)="handleEnterConv($event)"
+              placeholder="Escribe tu respuesta... (Enter para enviar)"
+              rows="2"
+              class="meta-textarea"></textarea>
+            <button (click)="enviarMensajeConv()" [disabled]="enviandoMsg" class="meta-btn-enviar">
+              {{ enviandoMsg ? '...' : 'Enviar ▶' }}
+            </button>
+          </div>
+
+          <div *ngIf="!['ESCALADA','ABIERTA','EN_ATENCION'].includes(convSeleccionada.estado?.toUpperCase())"
+     class="meta-cerrada-bar">
+            Conversación cerrada — solo lectura
+          </div>
+
+        </ng-container>
+      </div>
     </div>
   </div>
 

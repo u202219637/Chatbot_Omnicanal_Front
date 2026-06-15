@@ -190,6 +190,36 @@
         Tu consulta fue escalada. Un asesor te atenderá pronto. Esta pantalla se actualiza automáticamente cada 5 segundos.
       </div>
 
+        <!-- Calificación -->
+        <div *ngIf="mostrarCalificacion && !calificacionEnviada"
+            style="padding:16px 20px;border-top:1px solid #e5e7eb;background:#fafafa;
+                    display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:14px;font-weight:700;color:#1f2937;text-align:center">
+            ¿Cómo calificarías la atención? ⭐
+          </div>
+          <div style="display:flex;justify-content:center;gap:8px">
+            <span *ngFor="let s of [1,2,3,4,5]"
+                  (click)="calificacion = s"
+                  style="font-size:32px;cursor:pointer;transition:transform .1s"
+                  [style.opacity]="calificacion >= s ? '1' : '0.3'"
+                  [style.transform]="calificacion >= s ? 'scale(1.2)' : 'scale(1)'">
+              ⭐
+            </span>
+          </div>
+          <textarea [(ngModel)]="comentarioCalificacion"
+                    placeholder="Comentario opcional..."
+                    rows="2"
+                    style="padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:10px;
+                          font-size:13px;font-family:inherit;resize:none;outline:none"></textarea>
+          <button (click)="enviarCalificacion()" [disabled]="!calificacion"
+                  style="padding:10px;border-radius:10px;border:none;
+                        background:linear-gradient(135deg,var(--p),var(--p2));
+                        color:white;font-size:13px;font-weight:700;cursor:pointer;
+                        font-family:inherit">
+            Enviar calificación
+          </button>
+        </div>
+        
       <!-- Aviso modo lectura -->
       <div *ngIf="modoLectura"
            style="padding:12px 20px;background:var(--soft);border-top:1px solid var(--line);

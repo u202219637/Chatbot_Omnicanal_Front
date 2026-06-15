@@ -47,6 +47,7 @@ export class AtencionComponent implements OnInit, OnDestroy,AfterViewChecked {
     this.clienteNombre  = this.route.snapshot.queryParamMap.get('cliente') || 'Cliente';
     this.origen         = this.route.snapshot.queryParamMap.get('origen') || 'WEB';
     this.cargarMensajes();
+    this.cargarPrioridad();
   }
 
     ngAfterViewChecked() {
@@ -153,6 +154,15 @@ iniciarPolling() {
   getCanalIcon(canal: string): string {
     if (!canal) return '🌐';
     return canal === 'WHATSAPP' ? '📱' : '🌐';
+  }
+  cargarPrioridad() {
+    if (!this.escalacionId) return;
+    this.http.get<any>(
+      `${environment.apiUrl}/escalaciones/${this.escalacionId}`,
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (e) => { this.prioridadSeleccionada = e.prioridad || 'MEDIA'; }
+    });
   }
 
   handleEnter(event: Event) {

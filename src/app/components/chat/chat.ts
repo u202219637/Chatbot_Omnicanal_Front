@@ -45,6 +45,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   escalando   = false;
   yaEscalado  = false;
   modoLectura = false;
+  mostrarCalificacion = false;
+  calificacion = 0;
+  comentarioCalificacion = '';
+  convIdParaCalificar: number | null = null;
+  calificacionEnviada = false;
   convIdActual: number | null = null;
 
   private pollingInterval: any = null;
@@ -129,13 +134,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }];
   }
 
-  cargarHistorial(convId: number, estado?: string) {
+cargarHistorial(convId: number, estado?: string) {
     this.modoLectura = estado !== 'ESCALADA';
     this.yaEscalado  = estado === 'ESCALADA';
     this.loading = true;
     this.mensajes = [];
     this.convIdActual = convId;
-
+    if (estado === 'CERRADA') {
+      this.convIdParaCalificar = convId;
+      this.mostrarCalificacion = true;
+    }
+    
     this.http.get<any[]>(
       `${environment.apiUrl}/chat/${convId}/mensajes`,
       { headers: this.getHeaders() }
@@ -264,9 +273,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
                 this.detenerPolling();
                 this.yaEscalado = false;
                 this.modoLectura = true;
+                this.convIdParaCalificar = this.convIdActual;
+                this.mostrarCalificacion = true;
                 this.mensajes.push({
                   tipo: 'bot',
-                  texto: 'El asesor ha cerrado la conversación. Puedes iniciar una nueva consulta.'
+                  texto: 'El asesor ha cerrado la conversación. ¿Cómo calificarías la atención recibida?'
                 });
               }
             }
@@ -293,6 +304,19 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.convIdActual = null;
     this.router.navigate(['/chat']);
   }
-
+enviarCalificacion() {
+    if (!this.calificacion || !this.convIdParaCalificar) return;
+    this.http.post(
+      `${environment.apiUrl}/chat/${this.convIdParaCalificar}/feedback`,
+      { calificacion: this.calificacion, comentario: this.comentarioCalificacion },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: () => {
+        this.calificacionEnviada = true;
+        this.mostrarCalificacion = false;
+        this.mensajes.push({ tipo: 'bot', texto: '¡Gracias por tu calificación! 🙏' });
+      }
+    });
+  }
   logout() { this.auth.logout(); }
 }
