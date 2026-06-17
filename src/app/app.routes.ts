@@ -67,8 +67,17 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-  path: 'privacidad',
-  loadComponent: () => import('./components/privacidad/privacidad').then(m => m.PrivacidadComponent)
+    path: 'privacidad',
+    loadComponent: () => import('./components/privacidad/privacidad').then(m => m.PrivacidadComponent)
+  },
+  {
+    path: 'mis-metricas',
+    loadComponent: () => import('./components/mis-metricas/mis-metricas').then(m => m.MisMetricasComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./components/reset-password/reset-password').then(m => m.ResetPasswordComponent)
   },
   { path: '**', redirectTo: 'landing' }
 ];

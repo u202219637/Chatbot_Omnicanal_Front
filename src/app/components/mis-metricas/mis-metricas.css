@@ -1,0 +1,81 @@
+.metricas-page {
+  background: var(--soft);
+  min-height: 100vh;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.metricas-header { margin-bottom: 24px; }
+.metricas-titulo { font-size: 28px; font-weight: 900; color: var(--ink); margin: 0; }
+.metricas-subtitulo { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+
+.metricas-loading {
+  padding: 60px; text-align: center; color: var(--muted); font-size: 14px;
+}
+.metricas-error {
+  background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px;
+  padding: 14px 18px; color: #991b1b; font-weight: 600; font-size: 14px;
+  max-width: 600px;
+}
+
+/* TARJETAS RESUMEN */
+.metricas-grid-top {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 24px; max-width: 700px;
+}
+.metrica-card {
+  background: white; border-radius: 16px; border: 1px solid var(--line);
+  padding: 22px;
+}
+.metrica-card--destacada {
+  background: linear-gradient(135deg, var(--p), var(--p2));
+  border: none;
+}
+.metrica-card--destacada .metrica-label { color: rgba(255,255,255,.85); }
+.metrica-card--destacada .metrica-num-grande { color: white; }
+
+.metrica-label { font-size: 13px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.metrica-num-grande { font-size: 34px; font-weight: 900; color: var(--ink); line-height: 1; }
+.metrica-promedio-row { display: flex; align-items: baseline; gap: 12px; }
+.metrica-estrellas { font-size: 16px; }
+
+/* SECCIONES */
+.metricas-card-seccion {
+  background: white; border-radius: 16px; border: 1px solid var(--line);
+  padding: 24px; margin-bottom: 20px; max-width: 700px;
+}
+.seccion-titulo { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 18px; }
+
+/* DISTRIBUCIÓN */
+.dist-bars { display: flex; flex-direction: column; gap: 12px; }
+.dist-item { display: flex; align-items: center; gap: 12px; }
+.dist-label { font-size: 13px; font-weight: 700; color: var(--ink); width: 48px; flex-shrink: 0; }
+.dist-bar-bg {
+  flex: 1; height: 10px; background: var(--soft); border-radius: 99px; overflow: hidden;
+}
+.dist-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--p), var(--p2));
+  border-radius: 99px; transition: width .4s ease;
+}
+.dist-total { font-size: 13px; font-weight: 700; color: var(--muted); width: 28px; text-align: right; }
+
+/* COMENTARIOS */
+.sin-comentarios { color: var(--muted); font-size: 13px; text-align: center; padding: 20px; }
+.comentario-item {
+  padding: 14px 0; border-bottom: 1px solid var(--line);
+}
+.comentario-item:last-child { border-bottom: none; }
+.comentario-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.comentario-estrellas { font-size: 13px; }
+.comentario-fecha { font-size: 11px; color: var(--muted); }
+.comentario-cliente { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.comentario-motivo {
+  display: inline-block; font-size: 11px; font-weight: 700; color: var(--p);
+  background: var(--p3); padding: 2px 8px; border-radius: 6px; margin-bottom: 4px;
+}
+.comentario-texto { font-size: 13px; color: var(--muted); font-style: italic; line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .metricas-page { padding: 16px; }
+  .metricas-grid-top { grid-template-columns: 1fr; }
+}

@@ -204,4 +204,61 @@
     </div>
 
   </ng-container>
+  <!-- FILA 3 — NUEVA: Comentarios + Palabras frecuentes -->
+<div class="dash-fila2" style="grid-template-columns: 1fr 1fr;">
+
+  <!-- COMENTARIOS RECIENTES -->
+  <div class="dash-card">
+    <h3 class="card-titulo">Comentarios recientes de clientes</h3>
+
+    <div *ngIf="comentariosRecientes.length === 0" class="sin-datos">
+      Aún no hay comentarios registrados
+    </div>
+
+    <div *ngFor="let c of comentariosRecientes"
+         style="padding:12px 0;border-bottom:1px solid var(--line)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div style="font-size:13px">
+          <span *ngFor="let s of estrellasArray(c.calificacion)">⭐</span>
+        </div>
+        <span style="font-size:11px;color:var(--muted)">{{ c.fecha | date:'dd/MM HH:mm' }}</span>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px">
+        {{ c.clienteNombre || 'Cliente' }}
+      </div>
+      <div *ngIf="c.motivo"
+           style="display:inline-block;font-size:11px;font-weight:700;color:var(--p);
+                  background:var(--p3);padding:2px 8px;border-radius:6px;margin-bottom:4px">
+        {{ motivoLabel(c.motivo) }}
+      </div>
+      <div style="font-size:13px;color:var(--muted);font-style:italic;line-height:1.5">
+        "{{ c.comentario }}"
+      </div>
+    </div>
+  </div>
+
+  <!-- PALABRAS MÁS FRECUENTES -->
+  <div class="dash-card">
+    <h3 class="card-titulo">Palabras más repetidas en comentarios</h3>
+
+    <div *ngIf="palabrasFrecuentes.length === 0" class="sin-datos">
+      Aún no hay suficientes comentarios para este análisis
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div *ngFor="let p of palabrasFrecuentes" style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:13px;font-weight:700;color:var(--ink);width:110px;
+                     text-transform:capitalize;flex-shrink:0">{{ p.palabra }}</span>
+        <div style="flex:1;height:8px;background:var(--soft);border-radius:99px;overflow:hidden">
+          <div style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p),var(--p2))"
+               [style.width.%]="(p.total / maxPalabra) * 100"></div>
+        </div>
+        <span style="font-size:12px;font-weight:700;color:var(--muted);width:24px;text-align:right">
+          {{ p.total }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>
 </div>

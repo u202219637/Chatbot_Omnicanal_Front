@@ -20,4 +20,6 @@ export class DashboardService {
   intenciones(): Observable<IntencionFrecuente[]> { return this.http.get<IntencionFrecuente[]>(`${this.url}/intenciones`, this.headers()); }
   documentosUsados(): Observable<any[]>           { return this.http.get<any[]>(`${this.url}/documentos-usados`, this.headers()); }
   convsPorDia(): Observable<any[]>                { return this.http.get<any[]>(`${this.url}/conversaciones-por-dia`, this.headers()); }
+  comentarios(): Observable<any[]>        { return this.http.get<any[]>(`${this.url}/comentarios`, this.headers()); }
+  palabrasFrecuentes(): Observable<any[]> { return this.http.get<any[]>(`${this.url}/palabras-frecuentes`, this.headers()); }
 }

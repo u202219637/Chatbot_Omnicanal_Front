@@ -96,14 +96,16 @@ import { AuthService } from '../../../services/auth.service';
     <a *ngIf="isCliente()"
        routerLink="/historial" routerLinkActive="nav-active" class="nav-item">Historial</a>
 
-<!-- ASESOR: Catálogo + Panel de Atención -->
-<ng-container *ngIf="isAsesor()">
-  <a routerLink="/catalogo" routerLinkActive="nav-active" class="nav-item">Catálogo</a>
-  <a routerLink="/escalaciones" routerLinkActive="nav-active" class="nav-item nav-item--destacado">
-    🧑‍💼 Panel de Atención
-  </a>
-</ng-container>
-
+    <!-- ASESOR: Catálogo + Panel de Atención + Mis Métricas -->
+    <ng-container *ngIf="isAsesor()">
+      <a routerLink="/catalogo" routerLinkActive="nav-active" class="nav-item">Catálogo</a>
+      <a routerLink="/escalaciones" routerLinkActive="nav-active" class="nav-item nav-item--destacado">
+        🧑‍💼 Panel de Atención
+      </a>
+      <a routerLink="/mis-metricas" routerLinkActive="nav-active" class="nav-item">
+        📊 Mis Métricas
+      </a>
+    </ng-container>
     <!-- ADMIN links -->
     <ng-container *ngIf="auth.isAdmin()">
       <span style="width:1px;height:20px;background:var(--line);margin:0 6px"></span>
@@ -168,6 +170,12 @@ import { AuthService } from '../../../services/auth.service';
                 cursor:pointer;text-decoration:none">
         🧑‍💼 Panel de Atención
       </a>
+        <a routerLink="/mis-metricas" *ngIf="isAsesor()" (click)="menuOpen=false"
+          style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+                  border-radius:10px;font-size:14px;font-weight:700;color:var(--ink);
+                  cursor:pointer;text-decoration:none">
+          📊 Mis Métricas
+        </a>
 
       <!-- Mis conversaciones — solo CLIENTE -->
       <a *ngIf="isCliente()" routerLink="/historial" (click)="menuOpen=false"

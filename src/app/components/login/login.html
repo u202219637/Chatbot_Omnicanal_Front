@@ -84,25 +84,59 @@
 </div>
 
 <!-- MODAL RECUPERAR CONTRASEÑA -->
+
 <div *ngIf="mostrarRecuperar"
   style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;
          display:flex;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:20px;padding:32px;width:380px;max-width:90vw;
               box-shadow:0 20px 60px rgba(0,0,0,.2);text-align:center">
+
     <div style="font-size:36px;margin-bottom:12px">🔐</div>
     <div style="font-size:18px;font-weight:900;margin-bottom:10px">Recuperar contraseña</div>
-    <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px">
-      Para recuperar tu contraseña, contacta al administrador del sistema:
-    </p>
-    <div style="background:var(--soft);border-radius:10px;padding:14px;
-                font-weight:800;color:var(--p);font-size:15px;margin-bottom:20px">
-      admin&#64;shadowbyte.pe
+
+    <!-- Estado inicial: pedir correo -->
+    <div *ngIf="!recuperarEnviado">
+      <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:18px">
+        Ingresa tu correo y te enviaremos un enlace para crear una nueva contraseña.
+      </p>
+
+      <div *ngIf="errorRecuperar" style="background:var(--red2);color:#991b1b;padding:10px 14px;
+           border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px">
+        ⚠️ {{ errorRecuperar }}
+      </div>
+
+      <input class="sb-input" type="email" [(ngModel)]="correoRecuperar"
+             placeholder="tu@correo.com" style="margin-bottom:16px;width:100%;box-sizing:border-box"
+             (keydown.enter)="enviarRecuperacion()">
+
+      <button (click)="enviarRecuperacion()" [disabled]="enviandoRecuperar"
+        style="width:100%;padding:12px;border-radius:10px;border:none;
+               background:var(--p);color:#fff;cursor:pointer;font-weight:800;
+               font-size:14px;font-family:inherit;margin-bottom:10px">
+        {{ enviandoRecuperar ? '⏳ Enviando...' : 'Enviar enlace' }}
+      </button>
+
+      <button (click)="cerrarModalRecuperar()"
+        style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--line);
+               background:#fff;color:var(--ink);cursor:pointer;font-weight:700;
+               font-size:14px;font-family:inherit">
+        Cancelar
+      </button>
     </div>
-    <button (click)="mostrarRecuperar = false"
-      style="width:100%;padding:12px;border-radius:10px;border:none;
-             background:var(--p);color:#fff;cursor:pointer;font-weight:800;
-             font-size:14px;font-family:inherit">
-      Cerrar
-    </button>
+
+    <!-- Estado: enviado correctamente -->
+    <div *ngIf="recuperarEnviado">
+      <p style="font-size:14px;color:var(--ink);line-height:1.7;margin-bottom:20px">
+        Si el correo está registrado, te llegará un enlace de recuperación en unos minutos.
+        Revisa también tu carpeta de spam.
+      </p>
+      <button (click)="cerrarModalRecuperar()"
+        style="width:100%;padding:12px;border-radius:10px;border:none;
+               background:var(--p);color:#fff;cursor:pointer;font-weight:800;
+               font-size:14px;font-family:inherit">
+        Entendido
+      </button>
+    </div>
+
   </div>
 </div>
