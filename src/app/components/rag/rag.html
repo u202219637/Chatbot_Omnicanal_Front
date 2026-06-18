@@ -69,6 +69,14 @@
               <div class="stat-label">Procesamiento completado</div>
             </div>
           </div>
+          <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--line)">
+            <button class="btn-upload" style="width:100%" (click)="reindexar()" [disabled]="reindexando">
+              {{ reindexando ? '⏳ Reindexando catálogo...' : '🔄 Reindexar catálogo' }}
+            </button>
+            <div *ngIf="resultadoReindex" style="margin-top:10px;font-size:13px;color:var(--muted);text-align:center">
+              {{ resultadoReindex }}
+            </div>
+          </div>
         </div>
       </div>
 

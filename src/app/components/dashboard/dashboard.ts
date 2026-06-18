@@ -32,8 +32,8 @@ export class DashboardComponent implements OnInit {
   estadoSistema = [
     { nombre: 'Servicio del chatbot',  estado: 'Operativo',         ok: true  },
     { nombre: 'Base RAG',              estado: 'Operativo',         ok: true  },
-    { nombre: 'Integración WhatsApp',  estado: 'Pendiente config.', ok: false },
-    { nombre: 'Azure Blob Storage',    estado: 'Pendiente config.', ok: false }
+    { nombre: 'Integración WhatsApp',  estado: 'Operativo',         ok: true },
+    { nombre: 'Azure Blob Storage',    estado: 'Operativo',         ok: true }
   ];
 
   constructor(private dashboardService: DashboardService) {}

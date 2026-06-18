@@ -71,4 +71,28 @@ export class RagComponent implements OnInit {
       });
     });
   }
+
+  reindexando = false;
+  resultadoReindex = '';
+
+  reindexar() {
+    this.reindexando = true;
+    this.resultadoReindex = '';
+    this.http.post(`${environment.apiUrl}/admin/documentos/reindexar`, {}, { responseType: 'text' })
+      .subscribe({
+        next: (res: string) => {
+          this.resultadoReindex = res;
+          this.reindexando = false;
+          // Refresca las estadísticas después de reindexar
+          this.http.get<any[]>(`${environment.apiUrl}/admin/documentos`).subscribe({
+            next: (d) => { this.documentos = d; this.estadisticas.documentos = d.length; },
+            error: () => {}
+          });
+        },
+        error: () => {
+          this.resultadoReindex = 'Error al reindexar. Revisa la consola del backend.';
+          this.reindexando = false;
+        }
+      });
+  }
 }

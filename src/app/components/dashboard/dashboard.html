@@ -26,7 +26,7 @@
 
   <ng-container *ngIf="!cargando && kpis">
 
-    <!-- KPIs FILA -->
+    <!-- FILA 1 — KPIs -->
     <div class="kpis-grid">
 
       <div class="kpi-card">
@@ -82,110 +82,35 @@
 
     </div>
 
-    <!-- FILA 2 -->
-    <div class="dash-fila2">
+    <!-- FILA 2 — Conversaciones por día + Estado del sistema -->
+    <div class="dash-fila-resumen">
 
-        <div class="dash-card dash-card--grande">
-          <h3 class="card-titulo">Conversaciones por día (últimos 30 días)</h3>
-          <ng-container *ngIf="convsDia.length; else sinConvs">
-            <div class="barras-contenedor" style="gap:6px">
-              <div class="barra-grupo" *ngFor="let d of convsDia" style="position:relative">
-                <!-- Barra WhatsApp encima -->
-                <div style="width:100%;border-radius:4px 4px 0 0;background:#22c55e;min-height:4px"
-                    [style.height.px]="(d.totalWhatsapp / maxConvs()) * 100"
-                    [title]="d.dia + ' WA: ' + d.totalWhatsapp">
-                </div>
-                <!-- Barra Web debajo -->
-                <div style="width:100%;background:var(--p2);min-height:4px"
-                    [style.height.px]="(d.totalWeb / maxConvs()) * 100"
-                    [title]="d.dia + ' Web: ' + d.totalWeb">
-                </div>
+      <div class="dash-card dash-card--grande">
+        <h3 class="card-titulo">Conversaciones por día (últimos 30 días)</h3>
+        <ng-container *ngIf="convsDia.length; else sinConvs">
+          <div class="barras-contenedor" style="gap:6px">
+            <div class="barra-grupo" *ngFor="let d of convsDia" style="position:relative">
+              <div style="width:100%;border-radius:4px 4px 0 0;background:#22c55e;min-height:4px"
+                  [style.height.px]="(d.totalWhatsapp / maxConvs()) * 100"
+                  [title]="d.dia + ' WA: ' + d.totalWhatsapp">
               </div>
-            </div>
-            <div class="barras-labels">
-              <span *ngFor="let d of convsDia">{{ d.dia | slice:5:10 }}</span>
-            </div>
-            <div style="display:flex;gap:16px;margin-top:10px;font-size:11px;font-weight:700">
-              <span style="display:flex;align-items:center;gap:5px">
-                <span style="width:10px;height:10px;background:var(--p2);border-radius:2px;display:inline-block"></span>
-                Web
-              </span>
-              <span style="display:flex;align-items:center;gap:5px">
-                <span style="width:10px;height:10px;background:#22c55e;border-radius:2px;display:inline-block"></span>
-                WhatsApp
-              </span>
-            </div>
-          </ng-container>
-          <ng-template #sinConvs>
-            <div class="sin-datos">Sin conversaciones registradas aún</div>
-          </ng-template>
-        </div>
-
-      <div class="dash-card">
-        <h3 class="card-titulo">Intenciones frecuentes</h3>
-        <ng-container *ngIf="intenciones.length; else sinIntenciones">
-          <div class="pie-contenedor">
-            <div class="pie-visual" [style.background]="pieGradient()"></div>
-            <div class="pie-leyenda">
-              <div class="leyenda-item" *ngFor="let item of intenciones; let i = index">
-                <span class="leyenda-dot" [style.background]="colorIntencion(i)"></span>
-                <span class="leyenda-texto">{{ item.intencion }} — {{ item.porcentaje | number:'1.1-1' }}%</span>
+              <div style="width:100%;background:var(--p2);min-height:4px"
+                  [style.height.px]="(d.totalWeb / maxConvs()) * 100"
+                  [title]="d.dia + ' Web: ' + d.totalWeb">
               </div>
             </div>
           </div>
+          <div class="barras-labels">
+            <span *ngFor="let d of convsDia">{{ d.dia | slice:5:10 }}</span>
+          </div>
+          <div class="leyenda-canales">
+            <span class="leyenda-canal"><span class="leyenda-dot-web"></span>Web</span>
+            <span class="leyenda-canal"><span class="leyenda-dot-wa"></span>WhatsApp</span>
+          </div>
         </ng-container>
-        <ng-template #sinIntenciones>
+        <ng-template #sinConvs>
           <div class="sin-datos">Sin conversaciones registradas aún</div>
         </ng-template>
-      </div>
-
-      <div class="dash-card">
-        <h3 class="card-titulo">Documentos RAG más usados</h3>
-        <ng-container *ngIf="documentosUsados.length; else sinDocs">
-          <div class="docs-lista">
-            <div class="doc-item" *ngFor="let d of documentosUsados">
-              <span class="doc-icono">📄</span>
-              <div class="doc-info">
-                <div class="doc-nombre">{{ d.tituloDocumento }}</div>
-                <div class="doc-usos">{{ d.usos | number }} usos</div>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-        <ng-template #sinDocs>
-          <div class="sin-datos">El chatbot aún no ha usado documentos RAG</div>
-        </ng-template>
-      </div>
-
-    </div>
-
-    <!-- FILA 3 -->
-    <div class="dash-fila3">
-
-      <div class="dash-card">
-        <h3 class="card-titulo">Rendimiento del asistente</h3>
-        <div class="rendimiento-grid">
-          <div class="rend-item">
-            <div class="rend-icono">✅</div>
-            <div class="rend-valor">{{ kpis.tasaResolucionAutomatica | number:'1.1-1' }}%</div>
-            <div class="rend-label">Resolución automática</div>
-          </div>
-          <div class="rend-item">
-            <div class="rend-icono">🌐</div>
-            <div class="rend-valor">{{ kpis.conversacionesWeb | number }}</div>
-            <div class="rend-label">Conversaciones web</div>
-          </div>
-          <div class="rend-item">
-            <div class="rend-icono">📱</div>
-            <div class="rend-valor">{{ kpis.conversacionesWhatsapp | number }}</div>
-            <div class="rend-label">Vía WhatsApp</div>
-          </div>
-          <div class="rend-item">
-            <div class="rend-icono">⏱️</div>
-            <div class="rend-valor">{{ kpis.tiempoPromedioRespuesta }}</div>
-            <div class="rend-label">Tiempo de respuesta</div>
-          </div>
-        </div>
       </div>
 
       <div class="dash-card">
@@ -203,62 +128,73 @@
 
     </div>
 
+    <!-- FILA 3 — Rendimiento del asistente (franja completa) -->
+    <div class="dash-card dash-fila-rendimiento">
+      <h3 class="card-titulo">Rendimiento del asistente</h3>
+      <div class="rendimiento-grid">
+        <div class="rend-item">
+          <div class="rend-icono">✅</div>
+          <div class="rend-valor">{{ kpis.tasaResolucionAutomatica | number:'1.1-1' }}%</div>
+          <div class="rend-label">Resolución automática</div>
+        </div>
+        <div class="rend-item">
+          <div class="rend-icono">🌐</div>
+          <div class="rend-valor">{{ kpis.conversacionesWeb | number }}</div>
+          <div class="rend-label">Conversaciones web</div>
+        </div>
+        <div class="rend-item">
+          <div class="rend-icono">📱</div>
+          <div class="rend-valor">{{ kpis.conversacionesWhatsapp | number }}</div>
+          <div class="rend-label">Vía WhatsApp</div>
+        </div>
+        <div class="rend-item">
+          <div class="rend-icono">⏱️</div>
+          <div class="rend-valor">{{ kpis.tiempoPromedioRespuesta }}</div>
+          <div class="rend-label">Tiempo de respuesta</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILA 4 — Comentarios + Palabras frecuentes -->
+    <div class="dash-fila-comentarios">
+
+      <div class="dash-card">
+        <h3 class="card-titulo">Comentarios recientes de clientes</h3>
+
+        <div *ngIf="comentariosRecientes.length === 0" class="sin-datos">
+          Aún no hay comentarios registrados
+        </div>
+
+        <div class="comentario-item" *ngFor="let c of comentariosRecientes">
+          <div class="comentario-header">
+            <div class="comentario-estrellas">
+              <span *ngFor="let s of estrellasArray(c.calificacion)">⭐</span>
+            </div>
+            <span class="comentario-fecha">{{ c.fecha | date:'dd/MM HH:mm' }}</span>
+          </div>
+          <div class="comentario-nombre">{{ c.clienteNombre || 'Cliente' }}</div>
+          <div *ngIf="c.motivo" class="comentario-motivo">{{ motivoLabel(c.motivo) }}</div>
+          <div class="comentario-texto">"{{ c.comentario }}"</div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <h3 class="card-titulo">Palabras más repetidas en comentarios</h3>
+
+        <div *ngIf="palabrasFrecuentes.length === 0" class="sin-datos">
+          Aún no hay suficientes comentarios para este análisis
+        </div>
+
+        <div class="palabra-item" *ngFor="let p of palabrasFrecuentes">
+          <span class="palabra-nombre">{{ p.palabra }}</span>
+          <div class="palabra-barra-track">
+            <div class="palabra-barra-fill" [style.width.%]="(p.total / maxPalabra) * 100"></div>
+          </div>
+          <span class="palabra-total">{{ p.total }}</span>
+        </div>
+      </div>
+
+    </div>
+
   </ng-container>
-  <!-- FILA 3 — NUEVA: Comentarios + Palabras frecuentes -->
-<div class="dash-fila2" style="grid-template-columns: 1fr 1fr;">
-
-  <!-- COMENTARIOS RECIENTES -->
-  <div class="dash-card">
-    <h3 class="card-titulo">Comentarios recientes de clientes</h3>
-
-    <div *ngIf="comentariosRecientes.length === 0" class="sin-datos">
-      Aún no hay comentarios registrados
-    </div>
-
-    <div *ngFor="let c of comentariosRecientes"
-         style="padding:12px 0;border-bottom:1px solid var(--line)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <div style="font-size:13px">
-          <span *ngFor="let s of estrellasArray(c.calificacion)">⭐</span>
-        </div>
-        <span style="font-size:11px;color:var(--muted)">{{ c.fecha | date:'dd/MM HH:mm' }}</span>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px">
-        {{ c.clienteNombre || 'Cliente' }}
-      </div>
-      <div *ngIf="c.motivo"
-           style="display:inline-block;font-size:11px;font-weight:700;color:var(--p);
-                  background:var(--p3);padding:2px 8px;border-radius:6px;margin-bottom:4px">
-        {{ motivoLabel(c.motivo) }}
-      </div>
-      <div style="font-size:13px;color:var(--muted);font-style:italic;line-height:1.5">
-        "{{ c.comentario }}"
-      </div>
-    </div>
-  </div>
-
-  <!-- PALABRAS MÁS FRECUENTES -->
-  <div class="dash-card">
-    <h3 class="card-titulo">Palabras más repetidas en comentarios</h3>
-
-    <div *ngIf="palabrasFrecuentes.length === 0" class="sin-datos">
-      Aún no hay suficientes comentarios para este análisis
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div *ngFor="let p of palabrasFrecuentes" style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:13px;font-weight:700;color:var(--ink);width:110px;
-                     text-transform:capitalize;flex-shrink:0">{{ p.palabra }}</span>
-        <div style="flex:1;height:8px;background:var(--soft);border-radius:99px;overflow:hidden">
-          <div style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p),var(--p2))"
-               [style.width.%]="(p.total / maxPalabra) * 100"></div>
-        </div>
-        <span style="font-size:12px;font-weight:700;color:var(--muted);width:24px;text-align:right">
-          {{ p.total }}
-        </span>
-      </div>
-    </div>
-  </div>
-
-</div>
 </div>

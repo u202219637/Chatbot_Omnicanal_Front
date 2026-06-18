@@ -13,42 +13,43 @@
 
   <div *ngIf="!cargando && !error">
 
-    <!-- TARJETAS RESUMEN -->
-    <div class="metricas-grid-top">
+    <!-- FILA SUPERIOR: Resumen + Distribución, lado a lado -->
+    <div class="metricas-fila-superior">
 
-      <div class="metrica-card metrica-card--destacada">
-        <div class="metrica-label">Calificación promedio</div>
-        <div class="metrica-promedio-row">
-          <span class="metrica-num-grande">{{ promedioPropio.toFixed(1) }}</span>
-          <div class="metrica-estrellas">
-            <span *ngFor="let s of estrellasArray(promedioPropio)">⭐</span>
+      <div class="metricas-resumen-col">
+        <div class="metrica-card metrica-card--destacada">
+          <div class="metrica-label">Calificación promedio</div>
+          <div class="metrica-promedio-row">
+            <span class="metrica-num-grande">{{ promedioPropio.toFixed(1) }}</span>
+            <div class="metrica-estrellas">
+              <span *ngFor="let s of estrellasArray(promedioPropio)">⭐</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metrica-card">
+          <div class="metrica-label">Casos calificados</div>
+          <div class="metrica-num-grande">{{ totalCasosCalificados }}</div>
+        </div>
+      </div>
+
+      <div class="metricas-card-seccion metricas-card-seccion--distribucion">
+        <h3 class="seccion-titulo">Distribución de calificaciones</h3>
+        <div class="dist-bars">
+          <div class="dist-item" *ngFor="let d of distribucion">
+            <div class="dist-label">{{ d.estrellas }} ⭐</div>
+            <div class="dist-bar-bg">
+              <div class="dist-bar-fill"
+                   [style.width.%]="(d.total / maxDistribucion) * 100"></div>
+            </div>
+            <div class="dist-total">{{ d.total }}</div>
           </div>
         </div>
       </div>
 
-      <div class="metrica-card">
-        <div class="metrica-label">Casos calificados</div>
-        <div class="metrica-num-grande">{{ totalCasosCalificados }}</div>
-      </div>
-
     </div>
 
-    <!-- DISTRIBUCIÓN -->
-    <div class="metricas-card-seccion">
-      <h3 class="seccion-titulo">Distribución de calificaciones</h3>
-      <div class="dist-bars">
-        <div class="dist-item" *ngFor="let d of distribucion">
-          <div class="dist-label">{{ d.estrellas }} ⭐</div>
-          <div class="dist-bar-bg">
-            <div class="dist-bar-fill"
-                 [style.width.%]="(d.total / maxDistribucion) * 100"></div>
-          </div>
-          <div class="dist-total">{{ d.total }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- COMENTARIOS RECIENTES -->
+    <!-- COMENTARIOS RECIENTES — grilla horizontal -->
     <div class="metricas-card-seccion">
       <h3 class="seccion-titulo">Comentarios recientes de tus clientes</h3>
 
@@ -56,16 +57,18 @@
         Aún no tienes calificaciones de clientes.
       </div>
 
-      <div class="comentario-item" *ngFor="let c of comentariosRecientes">
-        <div class="comentario-top">
-          <div class="comentario-estrellas">
-            <span *ngFor="let s of estrellasArray(c.calificacion)">⭐</span>
+      <div class="comentarios-grid">
+        <div class="comentario-item" *ngFor="let c of comentariosRecientes">
+          <div class="comentario-top">
+            <div class="comentario-estrellas">
+              <span *ngFor="let s of estrellasArray(c.calificacion)">⭐</span>
+            </div>
+            <span class="comentario-fecha">{{ c.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
-          <span class="comentario-fecha">{{ c.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+          <div class="comentario-cliente">{{ c.clienteNombre || 'Cliente' }}</div>
+          <div *ngIf="c.motivo" class="comentario-motivo">{{ motivoLabel(c.motivo) }}</div>
+          <div *ngIf="c.comentario" class="comentario-texto">"{{ c.comentario }}"</div>
         </div>
-        <div class="comentario-cliente">{{ c.clienteNombre || 'Cliente' }}</div>
-        <div *ngIf="c.motivo" class="comentario-motivo">{{ motivoLabel(c.motivo) }}</div>
-        <div *ngIf="c.comentario" class="comentario-texto">"{{ c.comentario }}"</div>
       </div>
     </div>
 

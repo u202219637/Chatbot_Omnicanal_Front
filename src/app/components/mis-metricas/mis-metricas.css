@@ -15,17 +15,19 @@
 .metricas-error {
   background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px;
   padding: 14px 18px; color: #991b1b; font-weight: 600; font-size: 14px;
-  max-width: 600px;
 }
 
-/* TARJETAS RESUMEN */
-.metricas-grid-top {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-  margin-bottom: 24px; max-width: 700px;
+/* FILA SUPERIOR — resumen + distribución lado a lado */
+.metricas-fila-superior {
+  display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px;
+  margin-bottom: 20px; align-items: stretch;
 }
+
+.metricas-resumen-col { display: flex; flex-direction: column; gap: 16px; }
+
 .metrica-card {
   background: white; border-radius: 16px; border: 1px solid var(--line);
-  padding: 22px;
+  padding: 22px; flex: 1; display: flex; flex-direction: column; justify-content: center;
 }
 .metrica-card--destacada {
   background: linear-gradient(135deg, var(--p), var(--p2));
@@ -35,19 +37,20 @@
 .metrica-card--destacada .metrica-num-grande { color: white; }
 
 .metrica-label { font-size: 13px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
-.metrica-num-grande { font-size: 34px; font-weight: 900; color: var(--ink); line-height: 1; }
+.metrica-num-grande { font-size: 36px; font-weight: 900; color: var(--ink); line-height: 1; }
 .metrica-promedio-row { display: flex; align-items: baseline; gap: 12px; }
-.metrica-estrellas { font-size: 16px; }
+.metrica-estrellas { font-size: 18px; }
 
 /* SECCIONES */
 .metricas-card-seccion {
   background: white; border-radius: 16px; border: 1px solid var(--line);
-  padding: 24px; margin-bottom: 20px; max-width: 700px;
+  padding: 24px; margin-bottom: 20px;
 }
+.metricas-card-seccion--distribucion { margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; }
 .seccion-titulo { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 18px; }
 
 /* DISTRIBUCIÓN */
-.dist-bars { display: flex; flex-direction: column; gap: 12px; }
+.dist-bars { display: flex; flex-direction: column; gap: 14px; }
 .dist-item { display: flex; align-items: center; gap: 12px; }
 .dist-label { font-size: 13px; font-weight: 700; color: var(--ink); width: 48px; flex-shrink: 0; }
 .dist-bar-bg {
@@ -59,12 +62,15 @@
 }
 .dist-total { font-size: 13px; font-weight: 700; color: var(--muted); width: 28px; text-align: right; }
 
-/* COMENTARIOS */
+/* COMENTARIOS — grilla de tarjetas */
 .sin-comentarios { color: var(--muted); font-size: 13px; text-align: center; padding: 20px; }
-.comentario-item {
-  padding: 14px 0; border-bottom: 1px solid var(--line);
+.comentarios-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
 }
-.comentario-item:last-child { border-bottom: none; }
+.comentario-item {
+  border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+}
 .comentario-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
 .comentario-estrellas { font-size: 13px; }
 .comentario-fecha { font-size: 11px; color: var(--muted); }
@@ -75,7 +81,10 @@
 }
 .comentario-texto { font-size: 13px; color: var(--muted); font-style: italic; line-height: 1.5; }
 
+@media (max-width: 900px) {
+  .metricas-fila-superior { grid-template-columns: 1fr; }
+}
 @media (max-width: 640px) {
   .metricas-page { padding: 16px; }
-  .metricas-grid-top { grid-template-columns: 1fr; }
+  .comentarios-grid { grid-template-columns: 1fr; }
 }
