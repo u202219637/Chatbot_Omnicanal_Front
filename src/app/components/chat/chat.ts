@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, Pipe, PipeTransform } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,19 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { NavbarComponent } from '../shared/navbar/navbar';
 import { environment } from '../../../environments/environment';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-
-@Pipe({ name: 'linebreak', standalone: true })
-export class LinebreakPipe implements PipeTransform {
-  constructor(private sanitizer: DomSanitizer) {}
-  transform(value: string): SafeHtml {
-    const escaped = value
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br>');
-    return this.sanitizer.bypassSecurityTrustHtml(escaped);
-  }
-}
+import { LinebreakPipe } from '../shared/linebreak.pipe';
 
 interface Mensaje {
   tipo: 'bot' | 'you';
@@ -134,13 +122,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }];
   }
 
-cargarHistorial(convId: number, estado?: string) {
-    this.modoLectura = estado !== 'ESCALADA';
+  // ── FIX: ABIERTA y ESCALADA siguen siendo continuables (no solo lectura).
+  //    Antes: this.modoLectura = estado !== 'ESCALADA'  -> bloqueaba ABIERTA.
+  cargarHistorial(convId: number, estado?: string) {
+    const estadosFinalizados = ['RESUELTA', 'CERRADA'];
+    this.modoLectura = estadosFinalizados.includes(estado || '');
     this.yaEscalado  = estado === 'ESCALADA';
     this.loading = true;
     this.mensajes = [];
     this.convIdActual = convId;
-    if (estado === 'CERRADA') {
+    if (estadosFinalizados.includes(estado || '')) {
       this.convIdParaCalificar = convId;
       this.mostrarCalificacion = true;
     }
@@ -296,15 +287,35 @@ cargarHistorial(convId: number, estado?: string) {
 
   preguntaRapida(texto: string) { this.inputText = texto; this.enviar(); }
 
+  // ── FIX: ahora cierra la conversación en el backend de verdad antes de
+  //    resetear localmente. Antes solo limpiaba el estado local, por lo
+  //    que el backend seguía reutilizando la misma conversación ABIERTA.
   nuevo() {
     this.detenerPolling();
+
+    if (this.convIdActual && !this.modoLectura) {
+      this.http.put(
+        `${environment.apiUrl}/chat/${this.convIdActual}/cerrar?resuelta=true`,
+        {},
+        { headers: this.getHeaders() }
+      ).subscribe({
+        next: () => this.resetearVistaChat(),
+        error: () => this.resetearVistaChat()
+      });
+    } else {
+      this.resetearVistaChat();
+    }
+  }
+
+  private resetearVistaChat() {
     this.mensajesBienvenida();
     this.yaEscalado  = false;
     this.modoLectura = false;
     this.convIdActual = null;
     this.router.navigate(['/chat']);
   }
-enviarCalificacion() {
+
+  enviarCalificacion() {
     if (!this.calificacion || !this.convIdParaCalificar) return;
     this.http.post(
       `${environment.apiUrl}/chat/${this.convIdParaCalificar}/feedback`,

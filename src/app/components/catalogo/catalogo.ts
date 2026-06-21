@@ -166,7 +166,21 @@ export class CatalogoComponent implements OnInit {
   guardarEdicion() {
     const id = this.productoEditando.id;
     this.http.put(`${environment.apiUrl}/productos/${id}`, this.productoEditando).subscribe({
-      next: () => { this.mostrarModalEdicion = false; this.cargar(); },
+      next: () => {
+        // FIX: en vez de volver a pedir todo el catálogo al backend (lo cual
+        // generaba una segunda petición justo después del PUT y, bajo el plan
+        // B1 con CPU compartida, a veces tardaba tanto que la UI parecía
+        // "congelada" en Cargando productos...), actualizamos el producto
+        // localmente en los arrays ya cargados. Es instantáneo y consistente.
+        const actualizado = { ...this.productoEditando };
+        const idxProd = this.productos.findIndex(p => p.id === id);
+        if (idxProd !== -1) this.productos[idxProd] = { ...this.productos[idxProd], ...actualizado };
+        const idxFiltrado = this.filtrados.findIndex(p => p.id === id);
+        if (idxFiltrado !== -1) this.filtrados[idxFiltrado] = { ...this.filtrados[idxFiltrado], ...actualizado };
+
+        this.mostrarModalEdicion = false;
+        this.productoEditando = null;
+      },
       error: (err) => console.error('Error al actualizar producto', err)
     });
   }

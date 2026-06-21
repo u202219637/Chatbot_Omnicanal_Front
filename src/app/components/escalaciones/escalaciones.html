@@ -293,7 +293,7 @@
           <div class="burbuja-icon burbuja-icon--bot">S</div>
           <div>
             <div class="burbuja-meta">Shadow IA · {{ m.fechaEnvio | date:'HH:mm' }}</div>
-            <div class="burbuja-bot">{{ m.contenido }}</div>
+            <div class="burbuja-bot" [innerHTML]="m.contenido | linebreak"></div>
             <!-- FUENTES RAG — visible solo para asesor -->
             <div *ngIf="m.fuentes && m.fuentes.length > 0"
                 style="margin-top:6px;padding:6px 10px;background:#f8f8fc;
@@ -320,7 +320,7 @@
                 <div class="burbuja-icon burbuja-icon--asesor">A</div>
                 <div>
                   <div class="burbuja-meta">Asesor · {{ m.fechaEnvio | date:'HH:mm' }}</div>
-                  <div class="burbuja-asesor">{{ m.contenido }}</div>
+                  <div class="burbuja-asesor" [innerHTML]="m.contenido | linebreak"></div>
                 </div>
               </div>
             </div>

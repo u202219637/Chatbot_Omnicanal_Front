@@ -6,11 +6,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { NavbarComponent } from '../shared/navbar/navbar';
 import { environment } from '../../../environments/environment';
+import { LinebreakPipe } from '../shared/linebreak.pipe';
 
 @Component({
   selector: 'app-escalaciones',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, LinebreakPipe],
   templateUrl: './escalaciones.html',
   styleUrl: './escalaciones.css'
 })
@@ -59,9 +60,30 @@ export class EscalacionesComponent implements OnInit, OnDestroy {
     this.rolUsuario = localStorage.getItem('rol') || '';
     this.cargarEscalaciones();
     this.cargarConversaciones();
+    this.iniciarPollingLista();
   }
 
-  ngOnDestroy() { this.detenerPollingConv(); }
+  ngOnDestroy() {
+    this.detenerPollingConv();
+    this.detenerPollingLista();
+  }
+
+  // FIX: la lista de escalaciones solo se cargaba una vez al entrar a la
+  // página. Un asesor con el panel abierto no se enteraba de un cliente
+  // nuevo escalado (por WhatsApp o web) hasta recargar manualmente. Esto
+  // refresca la lista cada 8s, igual que ya se hace con los mensajes de
+  // una conversación abierta (iniciarPollingConv).
+  private pollingLista: any = null;
+
+  iniciarPollingLista() {
+    this.pollingLista = setInterval(() => {
+      this.cargarEscalaciones(false);
+    }, 8000);
+  }
+
+  detenerPollingLista() {
+    if (this.pollingLista) { clearInterval(this.pollingLista); this.pollingLista = null; }
+  }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token') || '';
@@ -69,8 +91,8 @@ export class EscalacionesComponent implements OnInit, OnDestroy {
   }
 
   // ── ESCALACIONES ──────────────────────────────────────────────────────────
-  cargarEscalaciones() {
-    this.cargando = true;
+  cargarEscalaciones(mostrarSpinner: boolean = true) {
+    if (mostrarSpinner) this.cargando = true;
     this.http.get<any[]>(`${environment.apiUrl}/escalaciones`,
       { headers: this.getHeaders() }).subscribe({
       next: (data) => { this.escalaciones = data; this.aplicarFiltros(); this.cargando = false; },
